@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Math Quest — Le parcours de maths de Louise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1FB; --bg-card:#FFFFFF; --ink:#1B1F3B; --ink-soft:#565b82;
+  --amber:#FFB945; --amber-ink:#7a5200; --coral:#FF6F61; --teal:#2EC4B6; --violet:#7C6FE0;
+  --line:#D8DDF4; --shadow: 0 6px 0 rgba(27,31,59,0.08); --radius: 18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background: radial-gradient(circle at 8% 12%, rgba(124,111,224,0.10), transparent 40%),
+    radial-gradient(circle at 92% 85%, rgba(255,185,69,0.14), transparent 45%), var(--bg);
+  color:var(--ink); font-family:"Nunito Sans", sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:"Fredoka", sans-serif; font-weight:600; letter-spacing:0.2px;}
+.mono{font-family:"JetBrains Mono", monospace;}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--amber); color:var(--ink);}
+a{color:var(--violet);}
+.topbar{position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between;
+  padding:12px 22px; background:rgba(238,241,251,0.9); backdrop-filter:blur(6px); border-bottom:2px solid var(--line);}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand .disc{width:30px; height:30px; border-radius:50%;
+  background:conic-gradient(from 90deg, var(--amber), var(--coral), var(--violet), var(--teal), var(--amber));
+  box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--line); animation:spin 6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.brand .title{font-size:1.15rem;}
+.brand .title small{display:block; font-size:0.62rem; color:var(--ink-soft); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; font-family:"Nunito Sans";}
+.stats{display:flex; align-items:center; gap:14px;}
+.pill{display:flex; align-items:center; gap:6px; background:#fff; border:2px solid var(--line); border-radius:999px; padding:6px 12px; font-weight:700; font-size:0.85rem;}
+.pill.xp{color:var(--amber-ink); border-color:#f4d8a0; background:#FFF7E8;}
+.pill.streak{color:#b23c2e; border-color:#ffd2cb; background:#FFF1EF;}
+.pill.badges{color:#3d3487; border-color:#dcd7fb; background:#F2F0FE;}
+.wrap{max-width:1000px; margin:0 auto; padding:24px 18px 90px;}
+.hero{background:var(--bg-card); border-radius:24px; border:2px solid var(--line); padding:26px 28px; margin-bottom:26px; box-shadow:var(--shadow);
+  display:flex; gap:22px; align-items:center; flex-wrap:wrap;}
+.hero .discoball{width:74px; height:74px; border-radius:50%; flex-shrink:0;
+  background: repeating-conic-gradient(from 0deg, rgba(255,255,255,0.9) 0 6deg, rgba(124,111,224,0.35) 6deg 12deg);
+  box-shadow: inset 0 -8px 16px rgba(27,31,59,0.15), 0 8px 0 rgba(27,31,59,0.06);}
+.hero h1{margin:0 0 6px; font-size:1.5rem;}
+.hero p{margin:0; color:var(--ink-soft); font-size:0.95rem; line-height:1.5;}
+.trail{position:relative; padding:10px 0 6px;}
+.trail::before{content:""; position:absolute; left:50%; top:0; bottom:0; width:4px; transform:translateX(-50%);
+  background:repeating-linear-gradient(180deg, var(--line) 0 10px, transparent 10px 20px); z-index:0;}
+.node-row{display:flex; justify-content:center; margin:14px 0; position:relative; z-index:1;}
+.node-row.left{justify-content:flex-start;} .node-row.right{justify-content:flex-end;}
+.node{width:min(320px, 82vw); text-align:left; background:#fff; border:2px solid var(--line); border-radius:var(--radius); padding:14px 16px;
+  box-shadow:var(--shadow); display:flex; gap:12px; align-items:center; transition:transform .12s ease;}
+.node:hover{transform:translateY(-2px);}
+.node.locked{opacity:0.5; filter:grayscale(0.4);}
+.node .emoji{font-size:1.7rem; width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:var(--bg); flex-shrink:0;}
+.node .info{flex:1; min-width:0;}
+.node .info .name{font-weight:800; font-size:0.95rem; font-family:"Fredoka";}
+.node .info .sub{font-size:0.66rem; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;}
+.node .info .bar{height:7px; border-radius:6px; background:var(--line); margin-top:7px; overflow:hidden;}
+.node .info .bar > span{display:block; height:100%; background:linear-gradient(90deg, var(--teal), var(--violet));}
+.node .info .status{font-size:0.72rem; color:var(--ink-soft); margin-top:4px; font-weight:700;}
+.grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px;}
+.card{background:#fff; border:2px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);}
+.card h3{margin:0 0 6px; font-size:1rem;}
+.card p{margin:0 0 10px; color:var(--ink-soft); font-size:0.85rem; line-height:1.45;}
+.tag{display:inline-block; font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; padding:3px 8px; border-radius:999px; background:var(--bg); color:var(--violet); margin-bottom:8px;}
+.btn{display:inline-flex; align-items:center; gap:6px; justify-content:center; background:var(--ink); color:#fff; border:none; border-radius:12px; padding:10px 16px;
+  font-weight:700; font-size:0.88rem; box-shadow:0 4px 0 rgba(0,0,0,0.18);}
+.btn:active{transform:translateY(2px); box-shadow:none;}
+.btn.amber{background:var(--amber); color:var(--amber-ink); box-shadow:0 4px 0 #d99b1f;}
+.btn.teal{background:var(--teal); color:#04332f; box-shadow:0 4px 0 #1f948a;}
+.btn.coral{background:var(--coral); color:#4a120c; box-shadow:0 4px 0 #d5493c;}
+.btn.ghost{background:#fff; color:var(--ink); border:2px solid var(--line); box-shadow:none;}
+.btn:disabled{opacity:0.4; cursor:not-allowed;}
+.btn.small{padding:7px 12px; font-size:0.78rem;}
+.overlay{position:fixed; inset:0; background:rgba(27,31,59,0.45); display:flex; align-items:flex-end; justify-content:center; z-index:100;}
+@media(min-width:720px){.overlay{align-items:center;}}
+.modal{background:#fff; width:100%; max-width:640px; max-height:92vh; overflow-y:auto; border-radius:22px 22px 0 0; padding:24px; position:relative;}
+@media(min-width:720px){.modal{border-radius:22px;}}
+.modal .close{position:absolute; top:14px; right:16px; background:var(--bg); border:none; width:32px; height:32px; border-radius:50%; font-size:1rem; font-weight:800;}
+.levelrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+.levelbtn{flex:1 1 130px; border:2px solid var(--line); border-radius:14px; padding:12px; background:#fff; text-align:left;}
+.levelbtn .num{font-family:"Fredoka"; font-weight:700; font-size:1.1rem;}
+.levelbtn .lab{font-size:0.74rem; color:var(--ink-soft); font-weight:700;}
+.levelbtn.done{border-color:var(--teal); background:#EAFBF9;}
+.levelbtn.locked{opacity:0.45;}
+.session{background:#fff; border:2px solid var(--line); border-radius:22px; padding:26px; box-shadow:var(--shadow);}
+.progresstop{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+.progresstop .track{flex:1; height:9px; background:var(--bg); border-radius:6px; overflow:hidden;}
+.progresstop .track > span{display:block; height:100%; background:linear-gradient(90deg,var(--amber),var(--coral));}
+.progresstop .count{font-size:0.8rem; font-weight:800; color:var(--ink-soft); white-space:nowrap;}
+.q-prompt{font-size:1.05rem; font-weight:700; margin-bottom:16px; line-height:1.5;}
+.choices{display:grid; gap:10px;}
+.choice{border:2px solid var(--line); border-radius:14px; padding:13px 16px; background:#fff; font-weight:700; text-align:left; font-size:0.95rem;}
+.choice:hover{border-color:var(--violet);}
+.choice.correct{border-color:var(--teal); background:#EAFBF9;}
+.choice.wrong{border-color:var(--coral); background:#FFF1EF;}
+.fillbox{width:100%; padding:13px 14px; border:2px solid var(--line); border-radius:14px; font-size:1rem; font-family:inherit; font-weight:700;}
+.wordbank{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+.wtok{border:2px solid var(--line); background:#fff; border-radius:10px; padding:8px 12px; font-weight:700;}
+.wtok.used{opacity:0.3; pointer-events:none;}
+.answerstrip{min-height:52px; border:2px dashed var(--line); border-radius:14px; padding:10px; display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; align-items:center;}
+.answerstrip .placeholder{color:var(--ink-soft); font-size:0.85rem;}
+.atok{border:2px solid var(--violet); background:#F2F0FE; border-radius:10px; padding:8px 12px; font-weight:700;}
+.rowbtns{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.feedback{margin-top:16px; padding:16px; border-radius:16px; font-size:0.9rem; line-height:1.55;}
+.feedback.ok{background:#EAFBF9; border:2px solid var(--teal);}
+.feedback.ko{background:#FFF1EF; border:2px solid var(--coral);}
+.feedback b{display:block; margin-bottom:4px;}
+.hintbox{margin-top:10px; padding:10px 14px; background:#FFF7E8; border:2px solid #f4d8a0; border-radius:12px; font-size:0.85rem;}
+.footer{text-align:center; padding:30px 10px 10px; color:var(--ink-soft); font-size:0.78rem;}
+.footer button{background:none; border:none; color:var(--ink-soft); text-decoration:underline; font-size:0.78rem;}
+.badgegrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:10px; margin-top:10px;}
+.badge{text-align:center; padding:10px 4px; border-radius:14px; background:var(--bg); border:2px solid var(--line); font-size:1.5rem;}
+.badge.locked{opacity:0.25; filter:grayscale(1);}
+.badge span{display:block; font-size:0.62rem; font-weight:800; margin-top:4px; color:var(--ink-soft);}
+table.datatable{width:100%; border-collapse:collapse; font-size:0.8rem;}
+table.datatable th, table.datatable td{border-bottom:1px solid var(--line); padding:6px 8px; text-align:left;}
+.toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 20px; border-radius:999px; font-weight:700; font-size:0.88rem; z-index:200; box-shadow:0 8px 20px rgba(0,0,0,0.25);}
+.nav-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+.nav-tabs button{border:2px solid var(--line); background:#fff; border-radius:999px; padding:8px 14px; font-weight:800; font-size:0.82rem; color:var(--ink-soft);}
+.nav-tabs button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+.empty{text-align:center; padding:30px; color:var(--ink-soft); font-size:0.9rem;}
+label.small{font-size:0.78rem; font-weight:700; color:var(--ink-soft); display:block; margin:10px 0 4px;}
+select, input[type=text]{font-family:inherit;}
+.flaglink{background:none; border:none; color:var(--ink-soft); text-decoration:underline; font-size:0.78rem; margin-top:8px; padding:0;}
+.statuspill{display:inline-block; font-size:0.66rem; font-weight:800; padding:2px 8px; border-radius:999px;}
+.statuspill.decouverte{background:#eee; color:#666;}
+.statuspill.fragile{background:#FFE3DE; color:#a63b2c;}
+.statuspill.encours{background:#FFF3D6; color:#8a6100;}
+.statuspill.presque{background:#E4E1FB; color:#4c3fb0;}
+.statuspill.maitrise{background:#DDF7F2; color:#0d6e60;}
+.statuspill.revoir{background:#FFE3DE; color:#a63b2c;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="disc"></div>
+    <div class="title">Math Quest<small>Tout part de toi — Louise</small></div>
+  </div>
+  <div class="stats">
+    <div class="pill xp mono">⭐ <span id="xpDisplay">0</span> XP</div>
+    <div class="pill streak">🔥 <span id="streakDisplay">0</span>j</div>
+    <div class="pill badges">🏅 <span id="badgeDisplay">0</span></div>
+  </div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<div class="footer">
+  Sauvegardé automatiquement dans ce navigateur, sur cet ordinateur.
+  <br><button id="parentGear">⚙ options</button>
+</div>
+
+<div id="overlayRoot"></div>
+
+<script>
+/* ============================================================
+   DONNÉES — NOTIONS (programme officiel de mathématiques, 4e)
+   Repère : pour l'année scolaire en cours, la 4e suit encore le
+   programme cycle 4 du BO du 30/07/2020 (attendus de fin de 4e,
+   BO n°22 du 29/05/2019). Le nouveau programme de mathématiques
+   (BO du 5 mars 2026) n'entrera en application en 4e qu'à la
+   rentrée 2027-2028 (5e dès 2026-2027, 3e en 2028-2029).
+   Détail et sources dans LISEZ_MOI.txt.
+   ============================================================ */
+const NOTIONS = [
+{
+  id:"calcul_priorites", name:"Priorités opératoires", emoji:"🧮", domain:"Nombres et calculs", competences:["Calculer","Communiquer"], prereqs:[],
+  objective:"Calculer une expression numérique en respectant l'ordre des opérations.",
+  method:"1) Parenthèses d'abord. 2) Multiplications et divisions (de gauche à droite). 3) Additions et soustractions (de gauche à droite).",
+  example:"5 + 3 × 4 : on calcule d'abord 3×4=12, puis 5+12=17.",
+  erreurs:"Additionner avant de multiplier ; oublier une parenthèse.",
+  verif:"Refaire le calcul étape par étape, ou estimer l'ordre de grandeur du résultat.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Dans 5 + 3 × 4, quelle opération dois-tu calculer en premier ?", choices:["5+3","3×4","Peu importe l'ordre"], answer:1,
+        correction:{rule:"Les multiplications et divisions sont prioritaires sur les additions et soustractions.", why:"Sans parenthèses, on ne fait jamais l'addition en premier si une multiplication est présente.", example:"Dans 2+3×5, on calcule 3×5 d'abord.", errorType:"erreur de priorité"}},
+      {kind:"mcq", prompt:"Dans (4+2)×3, que dois-tu calculer en premier ?", choices:["4+2","2×3","4×3"], answer:0,
+        correction:{rule:"Les parenthèses sont toujours calculées en premier.", why:"Le contenu des parenthèses doit être calculé avant tout le reste.", example:"(1+1)×5 = 2×5 = 10.", errorType:"oubli d'une parenthèse"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule : 5 + 3 × 4 = ___", accepted:["17"],
+        correction:{rule:"Multiplication avant addition.", why:"On calcule 3×4=12 puis 5+12=17.", example:"2+4×2 = 2+8 = 10.", errorType:"erreur de priorité"}},
+      {kind:"fill", prompt:"Calcule : (6 - 2) × 3 = ___", accepted:["12"],
+        correction:{rule:"Parenthèses en premier.", why:"6-2=4, puis 4×3=12.", example:"(5-1)×2 = 4×2 = 8.", errorType:"oubli d'une parenthèse"}}
+    ],
+    3:[
+      {kind:"order", words:["3×4","=12","5+12","=17"], prompt:"Remets dans l'ordre les étapes pour calculer 5 + 3 × 4."},
+      {kind:"order", words:["7-3","=4","4×5","=20"], prompt:"Remets dans l'ordre les étapes pour calculer (7-3)×5."}
+    ],
+    4:[
+      {kind:"open", prompt:"Calcule 8 + 2 × (5-3) et écris toutes tes étapes.", requiredAny:["12"], minLen:8,
+        correction:{example:"5-3=2 ; 2×2=4 ; 8+4=12. Résultat : 12."}},
+      {kind:"open", prompt:"Calcule 30 - 4 × (6-4) et écris toutes tes étapes.", requiredAny:["22"], minLen:8,
+        correction:{example:"6-4=2 ; 4×2=8 ; 30-8=22. Résultat : 22."}}
+    ]
+  }
+},
+{
+  id:"relatifs", name:"Nombres relatifs", emoji:"➖", domain:"Nombres et calculs", competences:["Calculer","Représenter"], prereqs:["calcul_priorites"],
+  objective:"Comparer, additionner, soustraire et multiplier des nombres relatifs.",
+  method:"Signes différents à l'addition : soustraire les distances à zéro et garder le signe du plus grand en valeur absolue. Multiplication : signes identiques → positif, signes différents → négatif.",
+  example:"(-5)+3 : on soustrait 5-3=2, le plus grand en valeur absolue est -5 (négatif), donc résultat = -2.",
+  erreurs:"Confondre « plus petit » et « plus grand en valeur absolue » ; oublier de changer le signe en multipliant par un négatif.",
+  verif:"Vérifier avec une droite graduée ou une situation concrète (température, altitude).",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Quel nombre est le plus grand : -8 ou -3 ?", choices:["-8","-3","Ils sont égaux"], answer:1,
+        correction:{rule:"Sur la droite graduée, plus on va vers la droite, plus le nombre est grand.", why:"-3 est plus proche de 0 (à droite) que -8, donc -3 > -8.", example:"-1 > -10.", errorType:"confusion ordre des relatifs"}},
+      {kind:"mcq", prompt:"Quel est le signe de (-4)×(-7) ?", choices:["Positif","Négatif","Impossible à savoir"], answer:0,
+        correction:{rule:"Le produit de deux nombres de même signe est positif.", why:"Deux négatifs multipliés entre eux donnent un résultat positif.", example:"(-2)×(-3)=6.", errorType:"erreur de signe"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule : (-5) + 3 = ___", accepted:["-2"],
+        correction:{rule:"Signes différents : soustraire les distances à zéro, garder le signe du plus grand en valeur absolue.", why:"5-3=2, et -5 a la plus grande valeur absolue, donc le résultat est -2.", example:"(-8)+3 = -5.", errorType:"erreur de signe"}},
+      {kind:"fill", prompt:"Calcule : (-6) × (-2) = ___", accepted:["12"],
+        correction:{rule:"Même signe → produit positif.", why:"(-6) et (-2) sont tous les deux négatifs.", example:"(-3)×(-4)=12.", errorType:"erreur de signe"}}
+    ],
+    3:[
+      {kind:"order", words:["Calculer 5-3=2","Garder le signe de -5","Résultat : -2"], prompt:"Remets dans l'ordre le raisonnement pour calculer (-5)+3."},
+      {kind:"order", words:["Repérer deux signes identiques","Produit positif","Calculer 3×5=15","Résultat : 15"], prompt:"Remets dans l'ordre le raisonnement pour calculer (-3)×(-5)."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un plongeur est à -12m. Il remonte de 5m. À quelle profondeur est-il ? Écris ton calcul.", requiredAny:["-7"], minLen:6,
+        correction:{example:"-12+5=-7. Il est à -7m (7m sous la surface)."}},
+      {kind:"open", prompt:"Calcule (-9)×3 et explique la règle de signe utilisée.", requiredAny:["-27"], minLen:8,
+        correction:{example:"-9×3=-27. Signes différents (négatif × positif) → résultat négatif."}}
+    ]
+  }
+},
+{
+  id:"fractions", name:"Fractions", emoji:"🍕", domain:"Nombres et calculs", competences:["Calculer","Raisonner"], prereqs:["relatifs"],
+  objective:"Simplifier, comparer et effectuer des opérations sur des fractions.",
+  method:"Pour additionner/soustraire : réduire au même dénominateur. Pour simplifier : diviser numérateur et dénominateur par un diviseur commun.",
+  example:"1/4 + 1/2 : on réécrit 1/2 = 2/4, donc 1/4+2/4=3/4.",
+  erreurs:"Additionner numérateurs et dénominateurs directement (1/4+1/2 ≠ 2/6) ; oublier de simplifier le résultat.",
+  verif:"Vérifier que le résultat est irréductible et cohérent (entre les deux fractions de départ pour une addition de positifs).",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Quelle fraction est égale à 2/4 ?", choices:["1/2","1/4","3/4"], answer:0,
+        correction:{rule:"On simplifie en divisant numérateur et dénominateur par leur diviseur commun.", why:"2/4 = (2÷2)/(4÷2) = 1/2.", example:"6/8 = 3/4.", errorType:"fraction non simplifiée"}},
+      {kind:"mcq", prompt:"Pour additionner 1/3 et 1/6, quel dénominateur commun choisir ?", choices:["3","6","9"], answer:1,
+        correction:{rule:"Le dénominateur commun est un multiple commun des deux dénominateurs.", why:"6 est un multiple de 3 et de lui-même : c'est le plus petit choix pratique.", example:"Pour 1/4 et 1/2, le dénominateur commun est 4.", errorType:"mauvais dénominateur commun"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Simplifie la fraction 8/12 (sous la forme a/b).", accepted:["2/3"],
+        correction:{rule:"Diviser par le PGCD (ici 4).", why:"8÷4=2 et 12÷4=3.", example:"9/12 = 3/4.", errorType:"fraction non simplifiée"}},
+      {kind:"fill", prompt:"Calcule : 1/4 + 1/2 = ___ (sous la forme a/b)", accepted:["3/4"],
+        correction:{rule:"Mettre au même dénominateur avant d'additionner.", why:"1/2=2/4, donc 1/4+2/4=3/4.", example:"1/3+1/3=2/3.", errorType:"mauvais dénominateur commun"}}
+    ],
+    3:[
+      {kind:"order", words:["Réécrire 1/2 en 2/4","Additionner les numérateurs : 1+2=3","Résultat : 3/4"], prompt:"Remets dans l'ordre les étapes de 1/4 + 1/2."},
+      {kind:"order", words:["Chercher le PGCD de 8 et 12 (=4)","Diviser 8 par 4","Diviser 12 par 4","Résultat : 2/3"], prompt:"Remets dans l'ordre les étapes pour simplifier 8/12."}
+    ],
+    4:[
+      {kind:"open", prompt:"Une pizza est coupée en 8 parts. Tu manges 3 parts. Quelle fraction as-tu mangée, simplifiée si possible ? Explique.", requiredAny:["3/8"], minLen:6,
+        correction:{example:"3/8 (déjà irréductible, 3 et 8 n'ont pas de diviseur commun autre que 1)."}},
+      {kind:"open", prompt:"Calcule 2/3 - 1/6 et explique tes étapes.", requiredAny:["1/2"], minLen:8,
+        correction:{example:"2/3=4/6, donc 4/6-1/6=3/6=1/2."}}
+    ]
+  }
+},
+{
+  id:"proportionnalite", name:"Proportionnalité", emoji:"⚖️", domain:"Grandeurs et nombres", competences:["Modéliser","Calculer"], prereqs:["fractions"],
+  objective:"Reconnaître une situation de proportionnalité et calculer une quatrième proportionnelle.",
+  method:"Vérifier que les rapports sont égaux, puis utiliser le coefficient, le passage à l'unité, ou le produit en croix.",
+  example:"3kg de pommes coûtent 6€. Pour 5kg : coefficient = 6÷3=2€/kg, donc 5×2=10€.",
+  erreurs:"Appliquer le produit en croix sans vérifier que la situation est proportionnelle ; confondre coefficient et valeur.",
+  verif:"Recalculer avec le passage à l'unité pour confirmer le résultat.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Un tableau est-il de proportionnalité si tous les rapports colonne/colonne sont égaux ?", choices:["Vrai","Faux"], answer:0,
+        correction:{rule:"Un tableau est de proportionnalité si le rapport (ou produit en croix) est constant.", why:"C'est la définition même de la proportionnalité.", example:"3→6 et 5→10 : 6/3=10/5=2, c'est proportionnel.", errorType:"situation non proportionnelle mal identifiée"}},
+      {kind:"mcq", prompt:"Le prix d'un taxi (prise en charge fixe + prix au km) est-il proportionnel à la distance ?", choices:["Oui","Non"], answer:1,
+        correction:{rule:"Une situation avec une partie fixe n'est pas proportionnelle.", why:"S'il y a un montant fixe de départ, le rapport prix/distance n'est pas constant.", example:"Un forfait avec abonnement fixe n'est pas non plus proportionnel.", errorType:"situation non proportionnelle mal identifiée"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"3kg de pommes coûtent 6€. Quel est le coefficient de proportionnalité (prix par kg) ?", accepted:["2"],
+        correction:{rule:"Coefficient = valeur d'arrivée ÷ valeur de départ.", why:"6÷3=2€ par kg.", example:"4kg à 12€ → coefficient 3.", errorType:"erreur de calcul mental"}},
+      {kind:"fill", prompt:"Avec ce coefficient de 2€/kg, combien coûtent 5kg ?", accepted:["10"],
+        correction:{rule:"On multiplie par le coefficient.", why:"5×2=10€.", example:"7kg × 2 = 14€.", errorType:"erreur de calcul mental"}}
+    ],
+    3:[
+      {kind:"order", words:["Calculer le coefficient : 6÷3=2","Multiplier 5 par 2","Résultat : 10€"], prompt:"Remets dans l'ordre le raisonnement pour trouver le prix de 5kg de pommes."},
+      {kind:"order", words:["Diviser 12 par 4 (passage à l'unité)","Résultat par unité : 3","Multiplier 3 par 7","Résultat : 21"], prompt:"Tableau 4→12. Combien pour 7 ? Remets dans l'ordre (passage à l'unité)."}
+    ],
+    4:[
+      {kind:"open", prompt:"Une recette pour 4 personnes utilise 200g de farine. Quelle quantité pour 6 personnes ? Explique ta méthode.", requiredAny:["300"], minLen:8,
+        correction:{example:"200÷4=50g par personne, puis 50×6=300g."}},
+      {kind:"open", prompt:"Sur une carte, 2cm représentent 50km réels. Quelle distance réelle pour 5cm ? Explique.", requiredAny:["125"], minLen:8,
+        correction:{example:"50÷2=25km par cm, puis 25×5=125km."}}
+    ]
+  }
+},
+{
+  id:"pourcentages", name:"Pourcentages", emoji:"💯", domain:"Grandeurs et nombres", competences:["Calculer","Modéliser"], prereqs:["proportionnalite"],
+  objective:"Calculer un pourcentage d'une quantité et appliquer une augmentation ou une réduction.",
+  method:"x% d'une quantité Q = (x/100)×Q. Augmentation de t% : Q×(1+t/100). Réduction de t% : Q×(1-t/100).",
+  example:"20% de 150 = (20/100)×150 = 30.",
+  erreurs:"Confondre « 20% de moins » avec « soustraire 20 » ; oublier de diviser par 100.",
+  verif:"Comparer avec des pourcentages usuels (10%, 50%) pour vérifier la vraisemblance.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"20% d'une quantité correspond à quelle fraction ?", choices:["1/5","1/4","1/2"], answer:0,
+        correction:{rule:"20% = 20/100 = 1/5.", why:"20/100 se simplifie en 1/5.", example:"50% = 1/2.", errorType:"erreur de conversion pourcentage/fraction"}},
+      {kind:"mcq", prompt:"Un article à 80€ subit une réduction de 25%. Le nouveau prix est-il plus petit que 80€ ?", choices:["Oui","Non"], answer:0,
+        correction:{rule:"Une réduction fait toujours baisser le prix.", why:"Réduire de 25% signifie retirer une partie du prix initial.", example:"Une augmentation de 10% donnerait un prix plus élevé.", errorType:"confusion augmentation/réduction"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule 20% de 150.", accepted:["30"],
+        correction:{rule:"(20/100)×150.", why:"0,2×150 = 30.", example:"10% de 150 = 15.", errorType:"erreur de calcul mental"}},
+      {kind:"fill", prompt:"Un article à 80€ baisse de 25%. Quel est le nouveau prix ?", accepted:["60"],
+        correction:{rule:"Nouveau prix = prix initial × (1 - t/100).", why:"80×0,75 = 60€.", example:"80€ - 25% de 80€ (=20€) = 60€.", errorType:"confusion augmentation/réduction"}}
+    ],
+    3:[
+      {kind:"order", words:["Calculer 25% de 80 : 0,25×80=20","Soustraire 20 à 80","Résultat : 60€"], prompt:"Remets dans l'ordre les étapes pour une réduction de 25% sur 80€."},
+      {kind:"order", words:["Calculer 15% de 200 : 0,15×200=30","Ajouter 30 à 200","Résultat : 230€"], prompt:"Remets dans l'ordre les étapes pour une augmentation de 15% sur 200€."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un pantalon à 45€ est soldé à -30%. Quel est le prix soldé ? Explique.", requiredAny:["31,5","31.5"], minLen:8,
+        correction:{example:"45×0,30=13,5€ de réduction, donc 45-13,5=31,5€."}},
+      {kind:"open", prompt:"Une population de 400 habitants augmente de 5%. Combien d'habitants de plus ? Explique.", requiredAny:["20"], minLen:8,
+        correction:{example:"400×0,05=20 habitants supplémentaires."}}
+    ]
+  }
+},
+{
+  id:"calcul_litteral", name:"Calcul littéral", emoji:"🔤", domain:"Calcul littéral", competences:["Calculer","Raisonner"], prereqs:["relatifs"],
+  objective:"Comprendre le rôle d'une lettre, calculer et réduire une expression littérale.",
+  method:"Remplacer la lettre par sa valeur puis appliquer les priorités. Pour réduire, regrouper les termes de même nature.",
+  example:"Pour x=3 dans 2x+5 : 2×3+5=6+5=11.",
+  erreurs:"Oublier de multiplier le coefficient par la lettre ; mal réduire des termes non semblables.",
+  verif:"Tester avec une valeur simple de x pour vérifier une réduction.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Que signifie l'écriture 3x ?", choices:["3+x","3×x","x puissance 3"], answer:1,
+        correction:{rule:"Un nombre collé à une lettre signifie une multiplication.", why:"3x est une notation raccourcie pour 3×x.", example:"5a signifie 5×a.", errorType:"confusion notation littérale"}},
+      {kind:"mcq", prompt:"Dans l'expression 2x+3x, combien de termes en x obtient-on après réduction ?", choices:["1 terme : 5x","2 termes séparés","Impossible à réduire"], answer:0,
+        correction:{rule:"On additionne les coefficients des termes semblables.", why:"2x+3x = (2+3)x = 5x.", example:"4a+2a=6a.", errorType:"erreur de réduction"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule 2x+5 pour x=3.", accepted:["11"],
+        correction:{rule:"Remplacer x par 3 puis appliquer les priorités.", why:"2×3+5=6+5=11.", example:"Pour x=4 : 2×4+5=13.", errorType:"erreur de substitution"}},
+      {kind:"fill", prompt:"Réduis l'expression 4x + 3 + 2x (sous la forme ax+b).", accepted:["6x+3"],
+        correction:{rule:"Regrouper les termes en x entre eux, les nombres entre eux.", why:"4x+2x=6x, et le +3 reste seul.", example:"5x+2+x = 6x+2.", errorType:"erreur de réduction"}}
+    ],
+    3:[
+      {kind:"order", words:["Remplacer x par 3 dans 2x+5","Calculer 2×3=6","Calculer 6+5=11"], prompt:"Remets dans l'ordre les étapes pour calculer 2x+5 avec x=3."},
+      {kind:"order", words:["Regrouper 4x et 2x","4x+2x=6x","Garder le +3 à part","Résultat : 6x+3"], prompt:"Remets dans l'ordre les étapes pour réduire 4x+3+2x."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un rectangle a pour largeur x et pour longueur x+5. Écris une expression littérale de son périmètre, puis calcule-la pour x=4.", requiredAny:["26"], minLen:8,
+        correction:{example:"Périmètre = 2×(x+(x+5)) = 4x+10. Pour x=4 : 4×4+10=26."}},
+      {kind:"open", prompt:"Explique pourquoi 2x+3 et 5x ne sont pas la même expression, avec un exemple numérique.", requiredAny:["exemple","valeur","x="], minLen:15,
+        correction:{example:"Pour x=2 : 2×2+3=7, alors que 5×2=10 : les deux expressions donnent des résultats différents en général."}}
+    ]
+  }
+},
+{
+  id:"distributivite", name:"Distributivité", emoji:"📐", domain:"Calcul littéral", competences:["Calculer","Raisonner"], prereqs:["calcul_litteral"],
+  objective:"Développer une expression avec la distributivité simple et factoriser des formes simples.",
+  method:"Développer : k×(a+b) = k×a + k×b. Factoriser : repérer un facteur commun et le mettre en évidence.",
+  example:"3×(x+4) = 3×x + 3×4 = 3x+12.",
+  erreurs:"Oublier de distribuer sur le second terme ; erreur de signe avec k×(a-b).",
+  verif:"Tester avec une valeur numérique de x pour vérifier que développement et expression de départ donnent le même résultat.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Quel est le développement correct de 3×(x+4) ?", choices:["3x+4","3x+12","x+12"], answer:1,
+        correction:{rule:"k×(a+b)=k×a+k×b : il faut multiplier k par chaque terme.", why:"3 doit multiplier x ET 4, pas seulement x.", example:"2×(x+5)=2x+10.", errorType:"distribution incomplète"}},
+      {kind:"mcq", prompt:"Quel est le développement correct de 5×(x-2) ?", choices:["5x-2","5x-10","5x+10"], answer:1,
+        correction:{rule:"Le signe à l'intérieur des parenthèses doit être respecté.", why:"5×(-2)=-10, donc 5x-10.", example:"4×(x-3)=4x-12.", errorType:"erreur de signe"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Développe : 2×(x+7) = ___ (sous la forme ax+b)", accepted:["2x+14"],
+        correction:{rule:"Distribuer 2 sur x et sur 7.", why:"2×x=2x et 2×7=14.", example:"3×(x+1)=3x+3.", errorType:"distribution incomplète"}},
+      {kind:"fill", prompt:"Factorise : 5x+15 (sous la forme a(x+b))", accepted:["5(x+3)"],
+        correction:{rule:"Chercher le facteur commun puis diviser chaque terme par ce facteur.", why:"5x÷5=x et 15÷5=3, donc 5x+15=5(x+3).", example:"3x+12=3(x+4).", errorType:"facteur commun mal identifié"}}
+    ],
+    3:[
+      {kind:"order", words:["Multiplier 2 par x : 2x","Multiplier 2 par 7 : 14","Résultat : 2x+14"], prompt:"Remets dans l'ordre les étapes pour développer 2×(x+7)."},
+      {kind:"order", words:["Chercher le facteur commun de 5x et 15 : 5","Diviser chaque terme par 5","Résultat : 5(x+3)"], prompt:"Remets dans l'ordre les étapes pour factoriser 5x+15."}
+    ],
+    4:[
+      {kind:"open", prompt:"Développe 4×(x-3) et vérifie ton résultat pour x=5.", requiredAny:["4x-12"], minLen:8,
+        correction:{example:"4×(x-3)=4x-12. Pour x=5 : 4×5-12=8, et 4×(5-3)=4×2=8. Les deux méthodes concordent."}},
+      {kind:"open", prompt:"Factorise l'expression 6x+9 et vérifie ton résultat pour x=2.", requiredAny:["3(2x+3)"], minLen:8,
+        correction:{example:"Facteur commun 3 : 6x+9=3(2x+3). Pour x=2 : 6×2+9=21, et 3×(2×2+3)=3×7=21."}}
+    ]
+  }
+},
+{
+  id:"equations", name:"Équations", emoji:"⚙️", domain:"Calcul littéral", competences:["Raisonner","Calculer"], prereqs:["distributivite"],
+  objective:"Résoudre des équations simples du type x+a=b, ax=b, ax+b=c.",
+  method:"Effectuer la même opération dans les deux membres pour isoler x.",
+  example:"x+5=12 : on soustrait 5 des deux côtés, x=12-5=7.",
+  erreurs:"N'effectuer l'opération que d'un seul côté ; oublier de vérifier la solution.",
+  verif:"Remplacer x par la solution trouvée dans l'équation initiale pour vérifier l'égalité.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Dans l'équation x+5=12, que doit-on faire pour isoler x ?", choices:["Soustraire 5 des deux côtés","Ajouter 5 des deux côtés","Multiplier par 5"], answer:0,
+        correction:{rule:"Pour isoler x, on effectue l'opération inverse (-5) des deux côtés.", why:"Cela annule le +5 à gauche tout en gardant l'égalité.", example:"x+3=10 → x=10-3=7.", errorType:"opération non appliquée aux deux membres"}},
+      {kind:"mcq", prompt:"x=4 est-il solution de l'équation 3x=12 ?", choices:["Oui","Non"], answer:0,
+        correction:{rule:"On vérifie en remplaçant x par la valeur proposée.", why:"3×4=12, l'égalité est vraie, donc x=4 est solution.", example:"x=5 n'est pas solution car 3×5=15≠12.", errorType:"oubli de vérifier la solution"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Résous : x + 5 = 12. x = ___", accepted:["7"],
+        correction:{rule:"Soustraire 5 des deux côtés.", why:"x=12-5=7.", example:"x+2=9 → x=7.", errorType:"opération non appliquée aux deux membres"}},
+      {kind:"fill", prompt:"Résous : 4x = 20. x = ___", accepted:["5"],
+        correction:{rule:"Diviser les deux côtés par 4.", why:"x=20÷4=5.", example:"3x=21 → x=7.", errorType:"opération non appliquée aux deux membres"}}
+    ],
+    3:[
+      {kind:"order", words:["Soustraire 3 des deux côtés","x = 10-3","Résultat : x=7"], prompt:"Remets dans l'ordre les étapes pour résoudre x+3=10."},
+      {kind:"order", words:["Soustraire 2 des deux côtés : 2x=10","Diviser par 2","Résultat : x=5"], prompt:"Remets dans l'ordre les étapes pour résoudre 2x+2=12."}
+    ],
+    4:[
+      {kind:"open", prompt:"Résous l'équation 3x+4=19 et vérifie ta solution.", requiredAny:["5"], minLen:8,
+        correction:{example:"3x=19-4=15, donc x=15÷3=5. Vérification : 3×5+4=19. ✓"}},
+      {kind:"open", prompt:"Le triple d'un nombre augmenté de 6 vaut 30. Mets ce problème en équation et résous-le.", requiredAny:["8"], minLen:10,
+        correction:{example:"3x+6=30, donc 3x=24, donc x=8. Vérification : 3×8+6=30. ✓"}}
+    ]
+  }
+},
+{
+  id:"grandeurs_conversions", name:"Grandeurs et conversions", emoji:"📏", domain:"Grandeurs et mesures", competences:["Calculer","Chercher"], prereqs:["fractions"],
+  objective:"Convertir des longueurs, aires, volumes, durées et masses, et choisir l'unité pertinente.",
+  method:"Utiliser un tableau de conversion (×10/100/1000 pour longueurs/masses ; ×100/10000 pour les aires ; ×1000/1000000 pour les volumes).",
+  example:"2,5km en m : 2,5×1000=2500m.",
+  erreurs:"Se tromper de puissance de 10 pour les aires/volumes ; mélanger les unités dans un même calcul.",
+  verif:"Estimer l'ordre de grandeur attendu avant de convertir.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Pour convertir des km en m, on multiplie par :", choices:["10","100","1000"], answer:2,
+        correction:{rule:"1km = 1000m.", why:"Il y a 1000 mètres dans un kilomètre.", example:"3km = 3000m.", errorType:"erreur de conversion"}},
+      {kind:"mcq", prompt:"Pour convertir des m² en cm², on multiplie par :", choices:["100","10000","1000"], answer:1,
+        correction:{rule:"Pour les aires, on multiplie par le carré du facteur de longueur (100²=10000).", why:"1m=100cm, donc 1m²=100×100cm²=10000cm².", example:"2m² = 20000cm².", errorType:"confusion aire/longueur dans les conversions"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Convertis 2,5km en m.", accepted:["2500"],
+        correction:{rule:"Multiplier par 1000.", why:"2,5×1000=2500.", example:"1,2km=1200m.", errorType:"erreur de conversion"}},
+      {kind:"fill", prompt:"Convertis 3h15min en minutes.", accepted:["195"],
+        correction:{rule:"1h=60min, donc 3h=180min, puis ajouter 15min.", why:"3×60+15=195.", example:"2h30min=150min.", errorType:"erreur de conversion"}}
+    ],
+    3:[
+      {kind:"order", words:["Multiplier 2,5 par 1000","2,5×1000=2500","Résultat : 2500m"], prompt:"Remets dans l'ordre les étapes pour convertir 2,5km en m."},
+      {kind:"order", words:["Convertir 3h en minutes : 3×60=180","Ajouter 15 minutes","Résultat : 195 minutes"], prompt:"Remets dans l'ordre les étapes pour convertir 3h15min en minutes."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un terrain rectangulaire mesure 50m sur 30m. Calcule son aire en m² puis convertis-la en cm². Explique.", requiredAny:["15000000","1500"], minLen:10,
+        correction:{example:"Aire = 50×30=1500 m². En cm² : 1500×10000=15 000 000 cm²."}},
+      {kind:"open", prompt:"Une voiture roule à 90km/h pendant 2h30min. Quelle distance parcourt-elle ? Explique.", requiredAny:["225"], minLen:8,
+        correction:{example:"2h30min=2,5h. Distance=90×2,5=225km."}}
+    ]
+  }
+},
+{
+  id:"aires_volumes", name:"Aires et volumes", emoji:"📦", domain:"Grandeurs et mesures", competences:["Calculer","Représenter"], prereqs:["grandeurs_conversions"],
+  objective:"Calculer des aires et des volumes de figures et solides usuels, sans confondre aire et périmètre.",
+  method:"Aire du rectangle = L×l. Aire du triangle = (base×hauteur)÷2. Volume du pavé droit = L×l×h.",
+  example:"Un rectangle de 6cm sur 4cm a une aire de 6×4=24cm².",
+  erreurs:"Confondre aire et périmètre ; oublier de diviser par 2 pour un triangle ; oublier l'unité (cm², cm³).",
+  verif:"Vérifier la cohérence des unités (une aire en unité², un volume en unité³).",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"L'aire d'un rectangle de 6cm sur 4cm se calcule comment ?", choices:["6+4","6×4","(6+4)×2"], answer:1,
+        correction:{rule:"Aire du rectangle = longueur × largeur.", why:"(6+4)×2 donnerait le périmètre, pas l'aire.", example:"Un rectangle 5×3 a une aire de 15.", errorType:"confusion aire/périmètre"}},
+      {kind:"mcq", prompt:"L'aire d'un triangle de base 8cm et de hauteur 5cm se calcule comment ?", choices:["8×5","(8×5)÷2","8+5"], answer:1,
+        correction:{rule:"Aire du triangle = (base×hauteur)÷2.", why:"Un triangle est la moitié d'un rectangle de même base et hauteur.", example:"Base 6, hauteur 4 → aire = 12.", errorType:"oubli de diviser par 2 (aire triangle)"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule l'aire d'un rectangle de 6cm sur 4cm (en cm²).", accepted:["24"],
+        correction:{rule:"Aire = L×l.", why:"6×4=24.", example:"7×3=21.", errorType:"confusion aire/périmètre"}},
+      {kind:"fill", prompt:"Calcule l'aire d'un triangle de base 8cm et hauteur 5cm (en cm²).", accepted:["20"],
+        correction:{rule:"Aire = (base×hauteur)÷2.", why:"(8×5)÷2=40÷2=20.", example:"Base 10, hauteur 4 → aire=20.", errorType:"oubli de diviser par 2 (aire triangle)"}}
+    ],
+    3:[
+      {kind:"order", words:["Multiplier 6 par 4 : 24","Ajouter l'unité cm²","Résultat : 24cm²"], prompt:"Remets dans l'ordre les étapes pour calculer l'aire d'un rectangle 6cm×4cm."},
+      {kind:"order", words:["Multiplier 8 par 5 : 40","Diviser par 2","Résultat : 20cm²"], prompt:"Remets dans l'ordre les étapes pour l'aire d'un triangle base 8cm, hauteur 5cm."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un pavé droit mesure 5cm × 3cm × 4cm. Calcule son volume et précise l'unité.", requiredAny:["60"], minLen:8,
+        correction:{example:"Volume = 5×3×4=60 cm³ (l'unité est cm³ car c'est un volume)."}},
+      {kind:"open", prompt:"Un jardin rectangulaire de 12m sur 7m doit être recouvert de gazon. Combien de m² faut-il ?", requiredAny:["84"], minLen:8,
+        correction:{example:"Aire = 12×7=84 m² de gazon nécessaire."}}
+    ]
+  }
+},
+{
+  id:"pythagore", name:"Théorème de Pythagore", emoji:"📐", domain:"Géométrie", competences:["Raisonner","Calculer"], prereqs:["aires_volumes"], svg:"triangle",
+  objective:"Utiliser le théorème de Pythagore pour calculer une longueur dans un triangle rectangle.",
+  method:"Dans un triangle rectangle, le carré de l'hypoténuse égale la somme des carrés des deux autres côtés : hyp²=côté1²+côté2².",
+  example:"Triangle rectangle en A, AB=3cm, AC=4cm. BC²=9+16=25, donc BC=5cm.",
+  erreurs:"Appliquer Pythagore dans un triangle non rectangle ; se tromper sur quel côté est l'hypoténuse.",
+  verif:"Vérifier que le triangle est rectangle avant d'appliquer le théorème, et que l'hypoténuse trouvée est le plus grand côté.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Dans un triangle rectangle en A, comment s'appelle le côté opposé à l'angle droit ?", choices:["Le côté AB","L'hypoténuse","La médiane"], answer:1,
+        correction:{rule:"L'hypoténuse est le côté opposé à l'angle droit, et le plus long côté du triangle.", why:"On l'appelle hypoténuse quand elle fait face à l'angle droit.", example:"Dans un triangle rectangle en B, l'hypoténuse est opposée à B.", errorType:"hypoténuse mal identifiée"}},
+      {kind:"mcq", prompt:"Peut-on utiliser Pythagore dans un triangle qui n'est pas rectangle ?", choices:["Oui","Non"], answer:1,
+        correction:{rule:"Le théorème de Pythagore ne s'applique que dans un triangle rectangle.", why:"Sans angle droit, la relation entre les côtés n'est pas celle du théorème.", example:"Un triangle équilatéral n'est pas rectangle.", errorType:"Pythagore appliqué à tort"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Triangle rectangle en A, AB=3cm, AC=4cm. Calcule BC² (en cm²).", accepted:["25"],
+        correction:{rule:"BC²=AB²+AC².", why:"3²+4²=9+16=25.", example:"Pour AB=6, AC=8 : BC²=36+64=100.", errorType:"erreur de calcul (carrés)"}},
+      {kind:"fill", prompt:"Avec BC²=25, quelle est la longueur BC (en cm) ?", accepted:["5"],
+        correction:{rule:"On prend la racine carrée du résultat.", why:"La racine carrée de 25 est 5.", example:"Racine carrée de 100 = 10.", errorType:"oubli de la racine carrée"}}
+    ],
+    3:[
+      {kind:"order", words:["Écrire BC²=AB²+AC²","Calculer 3²+4²=25","Calculer la racine carrée de 25","Résultat : BC=5cm"], prompt:"Remets dans l'ordre les étapes pour AB=3cm, AC=4cm."},
+      {kind:"order", words:["Vérifier que le triangle est rectangle en A","Écrire BC²=AB²+AC²","Calculer 6²+8²=100","Résultat : BC=10cm"], prompt:"Remets dans l'ordre le raisonnement complet pour AB=6cm, AC=8cm."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un triangle est rectangle en A avec AB=5cm et AC=12cm. Calcule BC et rédige ton raisonnement complet.", requiredAny:["13"], minLen:12,
+        correction:{example:"BC²=25+144=169. BC=√169=13cm."}},
+      {kind:"open", prompt:"Un triangle a pour côtés 6cm, 7cm et 9cm. Est-il rectangle ? Justifie en comparant les carrés.", requiredAny:["non","pas rectangle"], minLen:12,
+        correction:{example:"Le plus grand côté est 9. 9²=81, alors que 6²+7²=85. Comme 81≠85, le triangle n'est pas rectangle."}}
+    ]
+  }
+},
+{
+  id:"transformations", name:"Transformations géométriques", emoji:"🔁", domain:"Géométrie", competences:["Représenter","Raisonner"], prereqs:["pythagore"],
+  objective:"Identifier et construire l'image d'une figure par symétrie, translation ou rotation, en reconnaissant les propriétés conservées.",
+  method:"Repérer le type de transformation (axe, centre, vecteur, angle) puis utiliser les propriétés conservées (longueurs, angles, alignement).",
+  example:"La symétrie axiale conserve les longueurs et les angles, mais inverse l'orientation de la figure.",
+  erreurs:"Confondre symétrie axiale et symétrie centrale ; oublier qu'une translation conserve aussi les longueurs et les angles.",
+  verif:"Vérifier que les longueurs de la figure de départ et de son image sont identiques.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Quelle transformation retourne une figure comme dans un miroir ?", choices:["La translation","La symétrie axiale","La rotation"], answer:1,
+        correction:{rule:"La symétrie axiale se fait par rapport à un axe, comme un miroir.", why:"La translation et la rotation ne retournent pas la figure comme un miroir.", example:"La symétrie par rapport à une droite verticale retourne la figure horizontalement.", errorType:"transformation mal identifiée"}},
+      {kind:"mcq", prompt:"Une translation conserve-t-elle les longueurs ?", choices:["Oui","Non"], answer:0,
+        correction:{rule:"Toutes les transformations étudiées conservent les longueurs et les angles.", why:"C'est une propriété commune à ces transformations.", example:"Une figure translatée a exactement la même taille.", errorType:"invariant mal identifié"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Dans une symétrie centrale de centre O, si A a pour image A', où se trouve O par rapport à [AA'] ?", accepted:["au milieu","milieu"],
+        correction:{rule:"O est le milieu du segment reliant un point et son image.", why:"C'est la définition de la symétrie centrale.", example:"Si A(2;3) a pour image A'(4;7), O est le milieu de [AA'].", errorType:"transformation mal identifiée"}},
+      {kind:"fill", prompt:"Une figure et son image par rotation ont-elles les mêmes angles ? (oui/non)", accepted:["oui"],
+        correction:{rule:"La rotation conserve les angles (et les longueurs).", why:"C'est une propriété fondamentale de la rotation.", example:"Un triangle rectangle reste rectangle après une rotation.", errorType:"invariant mal identifié"}}
+    ],
+    3:[
+      {kind:"order", words:["Identifier le centre O","Tracer le symétrique de chaque sommet","Relier les points obtenus"], prompt:"Remets dans l'ordre la méthode pour construire l'image d'un triangle par symétrie centrale de centre O."},
+      {kind:"order", words:["Identifier l'axe de symétrie","Tracer la perpendiculaire à l'axe depuis chaque sommet","Reporter la même distance de l'autre côté"], prompt:"Remets dans l'ordre la méthode pour construire l'image par symétrie axiale."}
+    ],
+    4:[
+      {kind:"open", prompt:"Explique pourquoi un carré transformé par une rotation de 90° autour de son centre reste un carré de même taille.", requiredAny:["longueur","angle","conserv"], minLen:15,
+        correction:{example:"La rotation conserve les longueurs et les angles : les côtés restent égaux et les angles restent droits."}},
+      {kind:"open", prompt:"Une figure a une aire de 12cm². Quelle est l'aire de son image par translation ? Justifie.", requiredAny:["12"], minLen:8,
+        correction:{example:"12cm², car la translation conserve les longueurs et les angles, donc aussi l'aire."}}
+    ]
+  }
+},
+{
+  id:"reperage", name:"Repérage dans le plan", emoji:"🧭", domain:"Géométrie", competences:["Représenter","Chercher"], prereqs:["transformations"], svg:"grid",
+  objective:"Se repérer dans un plan muni d'un repère, lire et placer des coordonnées.",
+  method:"Un point est repéré par un couple (abscisse ; ordonnée). L'abscisse se lit horizontalement, l'ordonnée verticalement.",
+  example:"Le point A(3;2) se trouve à 3 unités à droite de l'origine et 2 unités vers le haut.",
+  erreurs:"Inverser abscisse et ordonnée ; confondre le sens de lecture des axes.",
+  verif:"Relire l'ordre du couple (toujours abscisse puis ordonnée) avant de placer le point.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Dans le couple de coordonnées (3;2), quel nombre est l'abscisse ?", choices:["3","2","Les deux"], answer:0,
+        correction:{rule:"Dans un couple (x;y), le premier nombre est toujours l'abscisse.", why:"Par convention, on écrit toujours (abscisse ; ordonnée).", example:"Dans (5;-1), 5 est l'abscisse et -1 l'ordonnée.", errorType:"abscisse/ordonnée inversées"}},
+      {kind:"mcq", prompt:"L'abscisse se lit sur quel axe ?", choices:["L'axe horizontal","L'axe vertical","Les deux axes"], answer:0,
+        correction:{rule:"L'abscisse correspond à un déplacement horizontal.", why:"L'ordonnée correspond au déplacement vertical.", example:"Pour (4;0), on se déplace seulement horizontalement.", errorType:"abscisse/ordonnée inversées"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Le point B a pour abscisse -2 et pour ordonnée 5. Écris ses coordonnées (x;y).", accepted:["(-2;5)","-2;5"],
+        correction:{rule:"On écrit toujours (abscisse;ordonnée).", why:"L'abscisse -2 est écrite en premier, l'ordonnée 5 en second.", example:"Point d'abscisse 0 et d'ordonnée 3 : (0;3).", errorType:"abscisse/ordonnée inversées"}},
+      {kind:"fill", prompt:"Le point C(4;0) est-il sur l'axe des abscisses ? (oui/non)", accepted:["oui"],
+        correction:{rule:"Un point d'ordonnée 0 est situé sur l'axe des abscisses.", why:"Son ordonnée est 0, donc il n'y a pas de déplacement vertical.", example:"Le point (0;5) est sur l'axe des ordonnées.", errorType:"lecture de graphique"}}
+    ],
+    3:[
+      {kind:"order", words:["Partir de l'origine","Avancer de 3 vers la droite (abscisse)","Monter de 2 (ordonnée)","Placer le point A(3;2)"], prompt:"Remets dans l'ordre la méthode pour placer le point A(3;2)."},
+      {kind:"order", words:["Lire la position horizontale du point","Lire la position verticale du point","Écrire les coordonnées (x;y)"], prompt:"Remets dans l'ordre la méthode pour lire les coordonnées d'un point."}
+    ],
+    4:[
+      {kind:"open", prompt:"Les points A(2;3) et B(2;-1) ont une particularité en commun. Laquelle ? Explique.", requiredAny:["abscisse","vertical"], minLen:12,
+        correction:{example:"Ils ont la même abscisse (2), donc ils sont alignés verticalement."}},
+      {kind:"open", prompt:"Un point a pour coordonnées (0;0). Comment s'appelle ce point particulier ?", requiredAny:["origine"], minLen:4,
+        correction:{example:"C'est l'origine du repère."}}
+    ]
+  }
+},
+{
+  id:"statistiques", name:"Statistiques", emoji:"📊", domain:"Statistiques et probabilités", competences:["Calculer","Communiquer"], prereqs:["reperage"],
+  objective:"Organiser une série de données et calculer moyenne, médiane et étendue.",
+  method:"Moyenne = somme des valeurs ÷ effectif. Médiane = valeur du milieu d'une série ordonnée. Étendue = max - min.",
+  example:"Série 4,6,8 : moyenne=(4+6+8)÷3=6. Médiane=6. Étendue=8-4=4.",
+  erreurs:"Confondre moyenne et médiane ; oublier d'ordonner la série avant de chercher la médiane.",
+  verif:"Vérifier que la médiane appartient à l'intervalle [min;max] de la série.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Pour trouver la médiane d'une série, que faut-il faire en premier ?", choices:["Calculer la moyenne","Ordonner les valeurs","Compter les effectifs"], answer:1,
+        correction:{rule:"La médiane se cherche dans une série ordonnée.", why:"Sans ordonner, on ne peut pas identifier la valeur du milieu.", example:"Pour 8,4,6 il faut d'abord écrire 4,6,8.", errorType:"médiane calculée sans ordonner la série"}},
+      {kind:"mcq", prompt:"La moyenne et la médiane sont-elles toujours égales ?", choices:["Oui","Non"], answer:1,
+        correction:{rule:"Moyenne et médiane sont deux indicateurs différents.", why:"La moyenne dépend de toutes les valeurs, la médiane seulement de la valeur centrale.", example:"Pour 1,2,3,4,100 : la moyenne est élevée, la médiane reste 3.", errorType:"confusion moyenne/médiane"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Calcule la moyenne de la série 4, 6, 8.", accepted:["6"],
+        correction:{rule:"Moyenne = somme ÷ effectif.", why:"(4+6+8)÷3=18÷3=6.", example:"Moyenne de 2,4,6 = 4.", errorType:"erreur de calcul mental"}},
+      {kind:"fill", prompt:"Calcule l'étendue de la série 4, 6, 8, 15.", accepted:["11"],
+        correction:{rule:"Étendue = max - min.", why:"15-4=11.", example:"Étendue de 2,5,9 = 7.", errorType:"confusion moyenne/médiane"}}
+    ],
+    3:[
+      {kind:"order", words:["Ordonner la série : 4,6,8","Repérer la valeur du milieu","Résultat : médiane = 6"], prompt:"Remets dans l'ordre les étapes pour trouver la médiane de 8,4,6."},
+      {kind:"order", words:["Additionner les valeurs : 4+6+8=18","Diviser par l'effectif : 18÷3","Résultat : moyenne = 6"], prompt:"Remets dans l'ordre les étapes pour calculer la moyenne de 4,6,8."}
+    ],
+    4:[
+      {kind:"open", prompt:"Les notes d'un élève sont 12, 14, 8, 16, 10. Calcule la moyenne et explique tes étapes.", requiredAny:["12"], minLen:10,
+        correction:{example:"Somme=12+14+8+16+10=60. Moyenne=60÷5=12."}},
+      {kind:"open", prompt:"Pourquoi la médiane peut-elle être plus représentative que la moyenne quand une valeur est extrême ? Donne un exemple.", requiredAny:["extrême","médiane"], minLen:15,
+        correction:{example:"Une valeur extrême 'tire' la moyenne vers elle. Ex : 1,2,3,4,100 → moyenne=22 mais médiane=3, plus représentative."}}
+    ]
+  }
+},
+{
+  id:"probabilites", name:"Probabilités", emoji:"🎲", domain:"Statistiques et probabilités", competences:["Modéliser","Calculer"], prereqs:["statistiques"],
+  objective:"Calculer une probabilité simple à partir du nombre de cas favorables et du nombre de cas possibles.",
+  method:"Probabilité = cas favorables ÷ cas possibles, toujours comprise entre 0 et 1.",
+  example:"Un dé à 6 faces : probabilité d'obtenir un 6 = 1/6.",
+  erreurs:"Confondre événement impossible (probabilité 0) et événement certain (probabilité 1) ; mal compter les cas favorables.",
+  verif:"Vérifier que la probabilité trouvée est bien comprise entre 0 et 1.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Quelle est la probabilité d'un événement certain ?", choices:["0","1","Cela dépend"], answer:1,
+        correction:{rule:"Un événement certain a une probabilité de 1.", why:"Il se réalise à coup sûr, donc sa probabilité est 1 (100%).", example:"Obtenir un nombre entre 1 et 6 avec un dé classique est certain.", errorType:"confusion événement certain/impossible"}},
+      {kind:"mcq", prompt:"Une probabilité peut-elle valoir 1,5 ?", choices:["Oui","Non"], answer:1,
+        correction:{rule:"Une probabilité est toujours comprise entre 0 et 1.", why:"1,5 est supérieur à 1, ce qui n'est pas possible.", example:"0,3 et 0,8 sont des probabilités valides, pas 1,5.", errorType:"probabilité hors de l'intervalle [0;1]"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Un dé à 6 faces. Quelle est la probabilité d'obtenir un 6 (sous forme de fraction) ?", accepted:["1/6"],
+        correction:{rule:"Probabilité = cas favorables ÷ cas possibles.", why:"Un seul cas favorable (le 6) sur 6 cas possibles.", example:"Probabilité d'un nombre pair : 3/6=1/2.", errorType:"cas favorables mal comptés"}},
+      {kind:"fill", prompt:"Un sac contient 3 billes rouges et 2 billes bleues. Probabilité de tirer une bille rouge (fraction) ?", accepted:["3/5"],
+        correction:{rule:"Cas favorables (rouges) ÷ total de billes.", why:"3 rouges sur un total de 5 billes.", example:"Probabilité de tirer une bille bleue : 2/5.", errorType:"cas favorables mal comptés"}}
+    ],
+    3:[
+      {kind:"order", words:["Compter les cas favorables : 1 face (le 6)","Compter les cas possibles : 6 faces","Résultat : 1/6"], prompt:"Remets dans l'ordre les étapes pour la probabilité d'obtenir un 6."},
+      {kind:"order", words:["Compter les billes rouges : 3","Compter le total de billes : 5","Résultat : 3/5"], prompt:"Remets dans l'ordre les étapes pour la probabilité de tirer une bille rouge."}
+    ],
+    4:[
+      {kind:"open", prompt:"Une roue est divisée en 8 parts égales, dont 2 gagnantes. Quelle est la probabilité de gagner ? Exprime-la aussi en pourcentage.", requiredAny:["1/4","25"], minLen:10,
+        correction:{example:"2 cas favorables sur 8 : 2/8=1/4, soit 25%."}},
+      {kind:"open", prompt:"Explique pourquoi la probabilité d'un événement impossible est 0, avec un exemple.", requiredAny:["impossible","0"], minLen:12,
+        correction:{example:"Un événement impossible ne peut jamais se produire : 0 cas favorable, donc probabilité 0. Ex : obtenir un 7 avec un dé à 6 faces."}}
+    ]
+  }
+},
+{
+  id:"fonctions", name:"Fonctions", emoji:"📈", domain:"Fonctions", competences:["Modéliser","Représenter"], prereqs:["equations"],
+  objective:"Comprendre la notion de dépendance entre deux grandeurs, lire une image et un antécédent.",
+  method:"Une fonction associe à chaque valeur de départ (antécédent) une unique valeur d'arrivée (image), via une formule, un tableau ou un graphique.",
+  example:"Pour f(x)=2x+1, l'image de 3 est f(3)=2×3+1=7.",
+  erreurs:"Confondre image et antécédent ; mal lire un graphique.",
+  verif:"Vérifier avec la formule que l'image calculée correspond à la lecture graphique.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Pour une fonction f, si f(3)=7, que représente 7 ?", choices:["L'antécédent de 3","L'image de 3","Une variable"], answer:1,
+        correction:{rule:"f(x) désigne l'image de x.", why:"7 est le résultat obtenu à partir de 3 : c'est l'image de 3.", example:"Si f(2)=5, alors 5 est l'image de 2.", errorType:"confusion image/antécédent"}},
+      {kind:"mcq", prompt:"Une fonction peut-elle associer deux images différentes à une même valeur de départ ?", choices:["Oui","Non"], answer:1,
+        correction:{rule:"Une fonction associe une unique image à chaque antécédent.", why:"C'est la définition même d'une fonction.", example:"f(x)=x+1 donne toujours le même résultat pour un même x.", errorType:"définition de fonction mal comprise"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Pour f(x)=2x+1, calcule f(3).", accepted:["7"],
+        correction:{rule:"Remplacer x par 3 dans la formule.", why:"2×3+1=7.", example:"f(0)=2×0+1=1.", errorType:"erreur de substitution"}},
+      {kind:"fill", prompt:"Pour f(x)=2x+1, quel est l'antécédent de 9 ?", accepted:["4"],
+        correction:{rule:"On résout l'équation f(x)=9.", why:"2x+1=9 → 2x=8 → x=4.", example:"Antécédent de 5 pour la même fonction : x=2.", errorType:"confusion image/antécédent"}}
+    ],
+    3:[
+      {kind:"order", words:["Remplacer x par 3 dans 2x+1","Calculer 2×3=6","Ajouter 1","Résultat : image = 7"], prompt:"Remets dans l'ordre les étapes pour calculer l'image de 3 par f(x)=2x+1."},
+      {kind:"order", words:["Poser l'équation 2x+1=9","Soustraire 1 : 2x=8","Diviser par 2","Résultat : antécédent = 4"], prompt:"Remets dans l'ordre les étapes pour trouver l'antécédent de 9."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un forfait de téléphone coûte f(x)=0,10x+15 (x en minutes, en euros). Calcule le prix pour 50 minutes.", requiredAny:["20"], minLen:10,
+        correction:{example:"f(50)=0,10×50+15=5+15=20€."}},
+      {kind:"open", prompt:"Pour f(x)=0,10x+15, combien de minutes pour payer 25€ ? Explique ta méthode.", requiredAny:["100"], minLen:10,
+        correction:{example:"0,10x+15=25 → 0,10x=10 → x=100 minutes."}}
+    ]
+  }
+},
+{
+  id:"algorithmique", name:"Algorithmique", emoji:"💻", domain:"Algorithmique et programmation", competences:["Chercher","Raisonner"], prereqs:["fonctions"],
+  objective:"Lire, prévoir le résultat, compléter et corriger un programme simple (pseudo-code).",
+  method:"Exécuter le programme pas à pas en notant l'évolution des variables, instruction après instruction.",
+  example:"x=0. Répéter 3 fois : x=x+2. Résultat final : x=6.",
+  erreurs:"Oublier de mettre à jour la variable à chaque tour de boucle ; mal compter le nombre de répétitions ; ignorer une condition.",
+  verif:"Dérouler le programme ligne par ligne avant de donner la réponse finale.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Dans un programme, une « variable » sert à :", choices:["Afficher un dessin","Stocker une valeur qui peut changer","Toujours donner le même résultat"], answer:1,
+        correction:{rule:"Une variable est un espace mémoire nommé contenant une valeur qui peut changer.", why:"C'est la définition d'une variable en programmation.", example:"La variable score peut valoir 0, puis 10, puis 25.", errorType:"rôle de la variable mal compris"}},
+      {kind:"mcq", prompt:"Une boucle « Répéter 3 fois » exécute les instructions à l'intérieur :", choices:["Une seule fois","3 fois","Un nombre indéterminé de fois"], answer:1,
+        correction:{rule:"Une boucle « Répéter n fois » exécute exactement n fois les instructions.", why:"C'est la définition d'une boucle bornée.", example:"Répéter 5 fois : avancer, exécute 'avancer' 5 fois.", errorType:"boucle mal comptée"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"x=0. Répéter 3 fois : x=x+2. Quelle est la valeur finale de x ?", accepted:["6"],
+        correction:{rule:"Dérouler la boucle pas à pas : 0+2=2, 2+2=4, 4+2=6.", why:"La boucle s'exécute 3 fois, donc on ajoute 2 trois fois.", example:"Répéter 4 fois x+1 depuis 0 → x=4.", errorType:"boucle mal comptée"}},
+      {kind:"fill", prompt:"x=5. Si x>3, alors x=x-1. Quelle est la valeur finale de x ?", accepted:["4"],
+        correction:{rule:"On vérifie la condition (5>3 est vrai), donc on exécute l'instruction.", why:"5-1=4.", example:"Si x=2 (2>3 faux), x resterait 2.", errorType:"condition ignorée"}}
+    ],
+    3:[
+      {kind:"order", words:["x=0 au départ","1er tour : x=0+2=2","2e tour : x=2+2=4","3e tour : x=4+2=6"], prompt:"Remets dans l'ordre le déroulement de la boucle 'Répéter 3 fois : x=x+2' depuis x=0."},
+      {kind:"order", words:["Vérifier la condition 5>3 (vrai)","Exécuter x=x-1","Résultat : x=4"], prompt:"Remets dans l'ordre le déroulement de 'Si x>3 alors x=x-1' avec x=5."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un programme part de x=1 et répète 4 fois 'x=x×2'. Quelle est la valeur finale ? Déroule chaque étape.", requiredAny:["16"], minLen:12,
+        correction:{example:"1×2=2, 2×2=4, 4×2=8, 8×2=16. Valeur finale : x=16."}},
+      {kind:"open", prompt:"Explique pourquoi 'Répéter 3 fois' et 'Répéter 4 fois' ne donnent pas le même résultat sur x=x+2 depuis x=0.", requiredAny:["6","8"], minLen:15,
+        correction:{example:"Avec 3 répétitions, x atteint 6. Avec 4 répétitions, x atteint 8 : plus on répète, plus la valeur augmente."}}
+    ]
+  }
+},
+{
+  id:"problemes_mixtes", name:"Résolution de problèmes (méthode LIRE)", emoji:"🧩", domain:"Résolution de problèmes", competences:["Chercher","Modéliser","Représenter","Raisonner","Calculer","Communiquer"], prereqs:["equations","proportionnalite"],
+  objective:"Appliquer une méthode explicite (LIRE) pour résoudre un problème mathématique complet.",
+  method:"LIRE = Lire la question, Identifier les données utiles, Représenter/reformuler, Effectuer et expliquer (avec une phrase-réponse).",
+  example:"Un problème avec des données inutiles : repérer la question, trier les données utiles, choisir l'opération, rédiger une phrase-réponse.",
+  erreurs:"Se lancer dans le calcul sans avoir repéré la question ; utiliser une donnée inutile ; oublier la phrase-réponse.",
+  verif:"Relire la phrase-réponse et vérifier qu'elle répond à la question posée, avec l'unité correcte.",
+  levels:{
+    1:[
+      {kind:"mcq", prompt:"Que faut-il faire en premier face à un problème, selon la méthode LIRE ?", choices:["Calculer directement","Lire la question et la reformuler","Écrire la réponse"], answer:1,
+        correction:{rule:"L = Lire la question avant tout calcul.", why:"Sans comprendre ce qui est demandé, on risque de répondre à côté.", example:"Si la question demande un prix, il ne faut pas répondre par une durée.", errorType:"question non repérée"}},
+      {kind:"mcq", prompt:"Un énoncé contient une information inutile. Faut-il l'utiliser dans le calcul ?", choices:["Oui, toujours","Non, il faut trier les données utiles"], answer:1,
+        correction:{rule:"I = Identifier les données utiles.", why:"Toutes les informations d'un énoncé ne servent pas forcément au calcul.", example:"La couleur du sac n'est pas utile pour calculer un prix total.", errorType:"donnée inutile utilisée"}}
+    ],
+    2:[
+      {kind:"fill", prompt:"Léa achète 3 livres à 8€ l'un. Elle avait 30€ (et 2 chats, sans lien). Combien lui reste-t-il (en €) ?", accepted:["6"],
+        correction:{rule:"Trier la donnée utile, écarter le reste (les chats).", why:"3×8=24€ dépensés, puis 30-24=6€ restants.", example:"Si elle avait 40€, il lui resterait 16€.", errorType:"donnée inutile utilisée"}},
+      {kind:"fill", prompt:"Un trajet de 120km est parcouru en 2h. Quelle est la vitesse moyenne (en km/h) ?", accepted:["60"],
+        correction:{rule:"Vitesse = distance ÷ durée.", why:"120÷2=60km/h.", example:"180km en 3h → vitesse = 60km/h.", errorType:"formule mal choisie"}}
+    ],
+    3:[
+      {kind:"order", words:["Lire la question : combien reste-t-il ?","Identifier les données utiles","Calculer 3×8=24 puis 30-24=6","Rédiger : il reste 6€"], prompt:"Remets dans l'ordre la méthode LIRE pour le problème des livres de Léa."},
+      {kind:"order", words:["Identifier la formule vitesse=distance÷durée","Remplacer par 120 et 2","Calculer 120÷2=60","Rédiger : la vitesse est 60km/h"], prompt:"Remets dans l'ordre la méthode pour calculer une vitesse moyenne."}
+    ],
+    4:[
+      {kind:"open", prompt:"Un magasin propose -20% sur un article à 45€, puis un bon d'achat de 5€ supplémentaire. Quel est le prix final ? Rédige une phrase-réponse.", requiredAny:["31"], minLen:15,
+        correction:{example:"45×0,20=9€ de réduction, donc 45-9=36€, puis 36-5=31€. Phrase-réponse : le prix final est 31€."}},
+      {kind:"open", prompt:"Explique, avec un exemple, pourquoi il est important d'écrire une phrase-réponse avec l'unité à la fin d'un problème.", requiredAny:["unité","phrase"], minLen:15,
+        correction:{example:"Sans phrase-réponse, un nombre seul peut être mal compris (31 quoi ?). Écrire 'Le prix final est 31€' lève toute ambiguïté."}}
+    ]
+  }
+}
+];
+
+/* ============================================================
+   AUTOMATISMES — calcul mental (génération contrôlée, résultats
+   toujours déterministes et non ambigus : voir LISEZ_MOI.txt)
+   ============================================================ */
+const AUTOMATISMES = [
+  {id:"tables", label:"Tables de multiplication", generate:()=>{
+    const a=2+Math.floor(Math.random()*8), b=2+Math.floor(Math.random()*8);
+    return {q:"Calcule : "+a+" × "+b, a:String(a*b)};
+  }},
+  {id:"doubles", label:"Doubles et moitiés", generate:()=>{
+    const n = 2*(1+Math.floor(Math.random()*40));
+    if(Math.random()<0.5) return {q:"Quel est le double de "+(n/2)+" ?", a:String(n)};
+    return {q:"Quelle est la moitié de "+n+" ?", a:String(n/2)};
+  }},
+  {id:"mult10", label:"× ÷ 10, 100, 1000", generate:()=>{
+    const n = (1+Math.floor(Math.random()*90));
+    const f = [10,100,1000][Math.floor(Math.random()*3)];
+    if(Math.random()<0.5) return {q:"Calcule : "+n+" × "+f, a:String(n*f)};
+    const n2 = n*f;
+    return {q:"Calcule : "+n2+" ÷ "+f, a:String(n)};
+  }},
+  {id:"fractions_us", label:"Fractions usuelles", generate:()=>{
+    const bases=[8,12,16,20,24,40,60,100];
+    const base = bases[Math.floor(Math.random()*bases.length)];
+    const opts=[["1/2",2],["1/4",4],["3/4", 4/3]];
+    const pick = opts[Math.floor(Math.random()*opts.length)];
+    let val;
+    if(pick[0]==="3/4") val = base*3/4; else val = base/pick[1];
+    return {q:"Calcule "+pick[0]+" de "+base, a:String(val)};
+  }},
+  {id:"pourc_us", label:"Pourcentages usuels", generate:()=>{
+    const bases=[20,40,50,80,100,120,200,240];
+    const base = bases[Math.floor(Math.random()*bases.length)];
+    const taux=[10,20,25,50][Math.floor(Math.random()*4)];
+    return {q:"Calcule "+taux+"% de "+base, a:String(base*taux/100)};
+  }},
+  {id:"carres", label:"Carrés usuels", generate:()=>{
+    const n=1+Math.floor(Math.random()*15);
+    return {q:"Calcule "+n+"²", a:String(n*n)};
+  }},
+  {id:"signes", label:"Signes des produits", generate:()=>{
+    const s1 = Math.random()<0.5?-1:1, s2 = Math.random()<0.5?-1:1;
+    const n1 = s1*(1+Math.floor(Math.random()*9)), n2 = s2*(1+Math.floor(Math.random()*9));
+    return {q:"Le produit ("+n1+") × ("+n2+") est-il positif ou négatif ?", a: (n1*n2>0)?"positif":"négatif", choices:["positif","négatif"]};
+  }}
+];
+
+/* ============================================================
+   ETAT / SAUVEGARDE
+   ============================================================ */
+const STORE_KEY = "louise_math_quest_v1";
+function defaultState(){
+  return {
+    xp:0, badges:[], streak:{count:0, last:null}, notionProgress:{}, errorLog:[],
+    flaggedQuestions:[], automatismesStats:{}, parentUnlockAll:false, hideParentGear:false, createdAt:Date.now()
+  };
+}
+let state = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultState();
+    return Object.assign(defaultState(), JSON.parse(raw));
+  }catch(e){ return defaultState(); }
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+function bumpStreak(){
+  const today = new Date().toDateString();
+  if(state.streak.last === today) return;
+  const y = new Date(); y.setDate(y.getDate()-1);
+  if(state.streak.last === y.toDateString()){ state.streak.count += 1; } else { state.streak.count = 1; }
+  state.streak.last = today;
+}
+function getProgress(notionId){
+  if(!state.notionProgress[notionId]){
+    state.notionProgress[notionId] = {1:{attempts:0,correct:0,validated:false},2:{attempts:0,correct:0,validated:false},3:{attempts:0,correct:0,validated:false},4:{attempts:0,correct:0,validated:false}};
+  }
+  return state.notionProgress[notionId];
+}
+function notionUnlocked(n){
+  if(state.parentUnlockAll) return true;
+  if(!n.prereqs.length) return true;
+  return n.prereqs.every(pid => getProgress(pid)[1].validated);
+}
+function levelUnlocked(n, lvl){
+  if(state.parentUnlockAll) return true;
+  if(lvl===1) return notionUnlocked(n);
+  const p = getProgress(n.id);
+  return p[lvl-1] && p[lvl-1].validated;
+}
+function notionOverallPct(n){
+  const p = getProgress(n.id);
+  return Math.round([1,2,3,4].filter(l=>p[l].validated).length/4*100);
+}
+function notionStatus(n){
+  const p = getProgress(n.id);
+  const validatedCount = [1,2,3,4].filter(l=>p[l].validated).length;
+  const attempts = [1,2,3,4].reduce((s,l)=>s+p[l].attempts,0);
+  if(validatedCount===4){
+    const recentErr = state.errorLog.slice(-25).some(e=>e.notion===n.id);
+    return recentErr? {label:"À revoir", cls:"revoir"} : {label:"Maîtrisé", cls:"maitrise"};
+  }
+  if(validatedCount>=3) return {label:"Presque maîtrisé", cls:"presque"};
+  if(validatedCount>=1) return {label:"En cours", cls:"encours"};
+  if(attempts>0) return {label:"Fragile", cls:"fragile"};
+  return {label:"Découverte", cls:"decouverte"};
+}
+
+const BADGE_DEFS = [
+  {id:"first_step", name:"Premier pas", emoji:"👣", check:s=> s._exCount>=1},
+  {id:"xp100", name:"100 XP", emoji:"⭐", check:s=> s.xp>=100},
+  {id:"xp500", name:"500 XP", emoji:"🌟", check:s=> s.xp>=500},
+  {id:"xp1000", name:"1000 XP", emoji:"💫", check:s=> s.xp>=1000},
+  {id:"streak3", name:"3 jours de suite", emoji:"🔥", check:s=> s.streak.count>=3},
+  {id:"first_master", name:"Notion maîtrisée", emoji:"🏆", check:s=> Object.values(s.notionProgress).some(p=>[1,2,3,4].every(l=>p[l] && p[l].validated))},
+  {id:"explorer", name:"Exploratrice", emoji:"🧭", check:s=> Object.keys(s.notionProgress).length >= NOTIONS.length},
+  {id:"bughunter", name:"Chasseuse d'erreurs", emoji:"🔍", check:s=> s._reviewDone>=1},
+  {id:"mentaliste", name:"Calcul mental", emoji:"⚡", check:s=> (s._autoCount||0)>=40},
+  {id:"victoire", name:"Petite victoire", emoji:"🌤️", check:s=> (s._victoires||0)>=1},
+  {id:"toutes_notions", name:"Programme complet", emoji:"🎓", check:s=> NOTIONS.every(n=>{const p=getProgress(n.id); return [1,2,3,4].every(l=>p[l].validated);})}
+];
+function checkBadges(){
+  state._exCount = (state._exCount||0);
+  const newly = [];
+  BADGE_DEFS.forEach(b=>{
+    if(!state.badges.includes(b.id) && b.check(state)){ state.badges.push(b.id); newly.push(b); }
+  });
+  return newly;
+}
+function awardXP(kind, correct, level){
+  let base = kind==="mcq"?10:kind==="fill"?15:kind==="order"?20:kind==="open"?18:8;
+  if(!correct) base = 3;
+  const mult = 1 + (level-1)*0.25;
+  const gained = Math.round(base*mult);
+  state.xp += gained;
+  state._exCount = (state._exCount||0)+1;
+  return gained;
+}
+
+let EXERCISE_INDEX = {};
+function buildExerciseIndex(){
+  NOTIONS.forEach(n=>{
+    [1,2,3,4].forEach(lvl=>{
+      n.levels[lvl].forEach((ex,i)=>{
+        const id = n.id+"_"+lvl+"_"+i;
+        ex._id = id; ex._notion = n.id; ex._level = lvl;
+        EXERCISE_INDEX[id] = ex;
+      });
+    });
+  });
+}
+buildExerciseIndex();
+function logError(ex){
+  state.errorLog.push({exId:ex._id, notion:ex._notion, level:ex._level, errorType:(ex.correction&&ex.correction.errorType)||"non catégorisée", ts:Date.now()});
+  if(state.errorLog.length>300) state.errorLog = state.errorLog.slice(-300);
+}
+function reviewPool(){
+  const seen = {}; const list = [];
+  for(let i=state.errorLog.length-1;i>=0 && list.length<8;i--){
+    const e = state.errorLog[i];
+    if(seen[e.exId]) continue;
+    seen[e.exId]=true;
+    const ex = EXERCISE_INDEX[e.exId];
+    if(ex) list.push(ex);
+  }
+  return list;
+}
+
+/* ============================================================
+   RENDU / NAVIGATION
+   ============================================================ */
+const app = document.getElementById("app");
+const overlayRoot = document.getElementById("overlayRoot");
+let currentTab = "parcours";
+
+function refreshHeader(){
+  document.getElementById("xpDisplay").textContent = state.xp;
+  document.getElementById("streakDisplay").textContent = state.streak.count;
+  document.getElementById("badgeDisplay").textContent = state.badges.length;
+}
+function toast(msg){
+  const t = document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2600);
+}
+
+const SVGS = {
+  triangle:"<svg viewBox='0 0 200 140' width='100%' height='140' style='max-width:280px;'><polyline points='20,120 140,120 140,20 20,120' fill='none' stroke='#1B1F3B' stroke-width='3'/><rect x='120' y='100' width='20' height='20' fill='none' stroke='#1B1F3B' stroke-width='2'/><text x='75' y='135' font-size='12' fill='#565b82'>AB</text><text x='148' y='70' font-size='12' fill='#565b82'>AC</text><text x='40' y='65' font-size='12' fill='#7C6FE0'>BC (hypoténuse)</text></svg>",
+  grid:"<svg viewBox='0 0 200 160' width='100%' height='160' style='max-width:280px;'><line x1='10' y1='140' x2='190' y2='140' stroke='#1B1F3B' stroke-width='2'/><line x1='30' y1='10' x2='30' y2='150' stroke='#1B1F3B' stroke-width='2'/><circle cx='90' cy='80' r='4' fill='#FF6F61'/><text x='95' y='78' font-size='12' fill='#565b82'>A(3;2)</text></svg>"
+};
+
+function renderApp(){
+  refreshHeader();
+  let html = "<div class='hero'>"+
+    "<div class='discoball'></div>"+
+    "<div><h1>Bienvenue Louise ✨</h1>"+
+    "<p>Un parcours de maths de 4e pensé pour comprendre les méthodes, pas juste trouver un résultat. Avance à ton rythme, une notion à la fois — et si c'est un jour un peu difficile, essaie une petite victoire.</p>"+
+    "<div class='rowbtns'><button class='btn coral small' id='victoireBtn'>🌤️ Petite victoire (3 exercices faciles)</button></div>"+
+    "</div></div>"+
+    "<div class='nav-tabs'>"+
+    "<button data-tab='parcours' class='"+(currentTab==='parcours'?'active':'')+"'>🗺️ Parcours</button>"+
+    "<button data-tab='automatismes' class='"+(currentTab==='automatismes'?'active':'')+"'>⚡ Automatismes</button>"+
+    "<button data-tab='dashboard' class='"+(currentTab==='dashboard'?'active':'')+"'>📊 Tableau de bord</button>"+
+    "<button data-tab='erreurs' class='"+(currentTab==='erreurs'?'active':'')+"'>🔁 Revoir mes erreurs</button>"+
+    "<button data-tab='badges' class='"+(currentTab==='badges'?'active':'')+"'>🏅 Badges</button>"+
+    "</div>"+
+    "<div id='tabContent'></div>";
+  app.innerHTML = html;
+  document.querySelectorAll(".nav-tabs button").forEach(b=>{
+    b.addEventListener("click", ()=>{ currentTab=b.dataset.tab; renderApp(); });
+  });
+  document.getElementById("victoireBtn").addEventListener("click", startVictoire);
+  renderTab();
+}
+
+function renderTab(){
+  const c = document.getElementById("tabContent");
+  if(currentTab==="parcours") return renderParcours(c);
+  if(currentTab==="automatismes") return renderAutomatismesTab(c);
+  if(currentTab==="dashboard") return renderDashboard(c);
+  if(currentTab==="erreurs") return renderErreursTab(c);
+  if(currentTab==="badges") return renderBadgesTab(c);
+}
+
+function renderParcours(c){
+  let html = "<div class='trail'>";
+  NOTIONS.forEach((n,i)=>{
+    const unlocked = notionUnlocked(n);
+    const pct = notionOverallPct(n);
+    const st = notionStatus(n);
+    const side = i%2===0? "left":"right";
+    html += "<div class='node-row "+side+"'>"+
+      "<div class='node "+(unlocked?'':'locked')+"' data-open='"+n.id+"'>"+
+        "<div class='emoji'>"+n.emoji+"</div>"+
+        "<div class='info'>"+
+          "<div class='name'>"+n.name+"</div>"+
+          "<div class='sub'>"+n.domain+"</div>"+
+          "<div class='bar'><span style='width:"+pct+"%'></span></div>"+
+          "<div class='status'>"+(unlocked? ("<span class='statuspill "+st.cls+"'>"+st.label+"</span>") : "🔒 termine niveau 1 des prérequis")+"</div>"+
+        "</div>"+
+      "</div>"+
+    "</div>";
+  });
+  html += "</div>";
+  c.innerHTML = html;
+  c.querySelectorAll(".node").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const n = NOTIONS.find(x=>x.id===el.dataset.open);
+      if(notionUnlocked(n)) openNotionModal(n);
+      else toast("Termine d'abord le niveau 1 des notions prérequises 🔒");
+    });
+  });
+}
+
+function openNotionModal(n){
+  const p = getProgress(n.id);
+  let levelsHtml = "";
+  [1,2,3,4].forEach(lvl=>{
+    const unlocked = levelUnlocked(n, lvl);
+    const done = p[lvl].validated;
+    const labels = {1:"Reconnaître",2:"Appliquer",3:"Choisir/construire",4:"Transférer/justifier"};
+    levelsHtml += "<button class='levelbtn "+(done?'done':'')+" "+(unlocked?'':'locked')+"' data-lvl='"+lvl+"' "+(unlocked?'':'disabled')+">"+
+      "<div class='num'>Niveau "+lvl+"</div>"+
+      "<div class='lab'>"+labels[lvl]+(done?' ✓':'')+"</div>"+
+    "</button>";
+  });
+  overlayRoot.innerHTML = "<div class='overlay'><div class='modal'>"+
+    "<button class='close' id='closeModal'>✕</button>"+
+    "<div class='tag'>"+n.domain+"</div>"+
+    "<h2>"+n.emoji+" "+n.name+"</h2>"+
+    (n.svg? ("<div style='margin:8px 0;'>"+SVGS[n.svg]+"</div>"):"")+
+    "<p style='color:var(--ink-soft); font-size:0.9rem; line-height:1.5;'><b>Objectif :</b> "+n.objective+"</p>"+
+    "<p style='color:var(--ink-soft); font-size:0.87rem; line-height:1.5;'><b>Méthode :</b> "+n.method+"</p>"+
+    "<p style='color:var(--ink-soft); font-size:0.87rem;'><b>Exemple expliqué :</b> "+n.example+"</p>"+
+    "<p style='color:var(--ink-soft); font-size:0.87rem;'><b>Erreurs fréquentes :</b> "+n.erreurs+"</p>"+
+    "<p style='color:var(--ink-soft); font-size:0.87rem;'><b>Astuce de vérification :</b> "+n.verif+"</p>"+
+    "<p style='color:var(--ink-soft); font-size:0.8rem;'><b>Compétences :</b> "+n.competences.join(", ")+"</p>"+
+    "<div class='levelrow'>"+levelsHtml+"</div>"+
+  "</div></div>";
+  document.getElementById("closeModal").addEventListener("click", closeOverlay);
+  overlayRoot.querySelectorAll(".levelbtn:not([disabled])").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      closeOverlay();
+      startSession(n.levels[b.dataset.lvl].map(x=>x), {type:"notion", notionId:n.id, level:parseInt(b.dataset.lvl)});
+    });
+  });
+}
+function closeOverlay(){ overlayRoot.innerHTML=""; }
+
+/* ---------- session engine ---------- */
+function startSession(exercises, meta){
+  const sessionExercises = shuffle(exercises.slice());
+  let idx = 0; let sessionCorrect = 0;
+  renderSessionUI();
+
+  function renderSessionUI(){
+    const c = document.getElementById("tabContent");
+    const ex = sessionExercises[idx];
+    const pctDone = Math.round(idx/sessionExercises.length*100);
+    c.innerHTML = "<div class='session'>"+
+      "<div class='progresstop'>"+
+        "<div class='track'><span style='width:"+pctDone+"%'></span></div>"+
+        "<div class='count mono'>"+(idx+1)+"/"+sessionExercises.length+"</div>"+
+      "</div>"+
+      "<div class='q-prompt'>"+ex.prompt+"</div>"+
+      "<div id='exBody'></div>"+
+      "<div id='exFeedback'></div>"+
+      "<div class='rowbtns' style='margin-top:18px;'>"+
+        "<button class='btn ghost small' id='quitSession'>Quitter</button>"+
+      "</div>"+
+    "</div>";
+    document.getElementById("quitSession").addEventListener("click", ()=>{ renderTab(); });
+    renderExerciseBody(ex);
+  }
+
+  function renderExerciseBody(ex){
+    const body = document.getElementById("exBody");
+    if(ex.kind==="mcq"){
+      body.innerHTML = "<div class='choices'>"+ex.choices.map((c,i)=>"<button class='choice' data-i='"+i+"'>"+c+"</button>").join("")+"</div>";
+      body.querySelectorAll(".choice").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const i = parseInt(btn.dataset.i);
+          const correct = i===ex.answer;
+          body.querySelectorAll(".choice").forEach(b=>b.disabled=true);
+          btn.classList.add(correct?"correct":"wrong");
+          if(!correct) body.querySelector("[data-i='"+ex.answer+"']").classList.add("correct");
+          finish(correct, ex);
+        });
+      });
+    } else if(ex.kind==="fill"){
+      body.innerHTML = "<input type='text' class='fillbox' id='fillInput' placeholder='Écris ta réponse...'>"+
+        "<div class='rowbtns'><button class='btn amber' id='fillCheck'>Valider</button></div>";
+      document.getElementById("fillCheck").addEventListener("click", ()=>{
+        const raw = document.getElementById("fillInput").value.trim().toLowerCase();
+        const val = raw.replace(/\s/g,"").replace(/\./g,",");
+        const correct = ex.accepted.some(a=> a.toLowerCase().replace(/\s/g,"") === val );
+        document.getElementById("fillCheck").disabled = true;
+        document.getElementById("fillInput").disabled = true;
+        finish(correct, ex);
+      });
+    } else if(ex.kind==="order"){
+      renderOrder(ex, body, 0);
+    } else if(ex.kind==="open"){
+      body.innerHTML = "<textarea class='fillbox' id='openInput' rows='3' placeholder='Écris ta réponse et tes étapes...'></textarea>"+
+        "<div class='rowbtns'><button class='btn amber' id='openCheck'>Valider</button></div>";
+      document.getElementById("openCheck").addEventListener("click", ()=>{
+        const val = document.getElementById("openInput").value.trim();
+        const low = val.toLowerCase();
+        const hasKeyword = !ex.requiredAny || ex.requiredAny.length===0 || ex.requiredAny.some(k=>low.includes(k.toLowerCase()));
+        const longEnough = val.length >= (ex.minLen||5);
+        const correct = hasKeyword && longEnough;
+        document.getElementById("openCheck").disabled = true;
+        document.getElementById("openInput").disabled = true;
+        finish(correct, ex, !hasKeyword ? "Vérifie ton résultat final (regarde bien le calcul)." : (!longEnough? "Essaie d'écrire un peu plus tes étapes de calcul." : ""));
+      });
+    }
+  }
+
+  function renderOrder(ex, body, attempt){
+    let bank = shuffle(ex.words.map((w,i)=>({w:w,i:i})));
+    let answer = [];
+    function draw(){
+      body.innerHTML = "<div class='answerstrip' id='answerStrip'><span class='placeholder'>Clique sur les étapes ci-dessous dans le bon ordre...</span></div>"+
+        "<div class='wordbank' id='wordBank'></div>"+
+        "<div class='rowbtns'>"+
+          "<button class='btn ghost small' id='undoBtn'>↩ Annuler</button>"+
+          "<button class='btn ghost small' id='resetBtn'>🔄 Recommencer</button>"+
+          "<button class='btn ghost small' id='hintBtn'>💡 Indice</button>"+
+          "<button class='btn amber small' id='validateBtn'>Valider</button>"+
+        "</div>"+
+        "<div id='hintZone'></div>";
+      renderBank(); renderStrip();
+      document.getElementById("undoBtn").addEventListener("click", ()=>{ if(answer.length){ answer.pop(); renderBank(); renderStrip(); }});
+      document.getElementById("resetBtn").addEventListener("click", ()=>{ answer=[]; renderBank(); renderStrip(); });
+      document.getElementById("hintBtn").addEventListener("click", ()=> showHint());
+      document.getElementById("validateBtn").addEventListener("click", ()=> checkOrder());
+    }
+    function renderBank(){
+      const wb = document.getElementById("wordBank");
+      wb.innerHTML = bank.map(t=>"<button class='wtok "+(answer.includes(t)?'used':'')+"' data-idx='"+t.i+"'>"+t.w+"</button>").join("");
+      wb.querySelectorAll(".wtok:not(.used)").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const idx = parseInt(btn.dataset.idx);
+          const tok = bank.find(t=>t.i===idx);
+          answer.push(tok); renderBank(); renderStrip();
+        });
+      });
+    }
+    function renderStrip(){
+      const strip = document.getElementById("answerStrip");
+      strip.innerHTML = answer.length? answer.map(t=>"<span class='atok'>"+t.w+"</span>").join("") : "<span class='placeholder'>Clique sur les étapes ci-dessous dans le bon ordre...</span>";
+    }
+    function showHint(){
+      const zone = document.getElementById("hintZone");
+      let hintTxt = "Repense à l'ordre logique du calcul (que fait-on en premier ?).";
+      for(let k=0;k<ex.words.length;k++){
+        if(!answer[k] || answer[k].w!==ex.words[k]){
+          hintTxt = "Vérifie l'étape numéro "+(k+1)+" : est-ce vraiment ce qu'on fait à ce moment du calcul ?";
+          break;
+        }
+      }
+      zone.innerHTML = "<div class='hintbox'>💡 "+hintTxt+"</div>";
+    }
+    function checkOrder(){
+      const userSeq = answer.map(t=>t.w);
+      const correct = JSON.stringify(userSeq)===JSON.stringify(ex.words);
+      if(!correct && attempt===0){
+        showHint(); toast("Pas tout à fait ! Regarde l'indice et réessaie 💡"); attempt = 1; return;
+      }
+      finish(correct, ex);
+    }
+    draw();
+  }
+
+  function finish(correct, ex, extraHint){
+    if(correct) sessionCorrect++; else logError(ex);
+    const gained = awardXP(ex.kind, correct, ex._level||1);
+    const zone = document.getElementById("exFeedback");
+    const corr = ex.correction || {};
+    let html = "<div class='feedback "+(correct?'ok':'ko')+"'>";
+    html += "<b>"+(correct? "✅ Bravo ! +"+gained+" XP" : "➡️ Pas encore, +"+gained+" XP pour l'effort")+"</b>";
+    if(corr.rule) html += "<div><b style='display:inline;'>Méthode :</b> "+corr.rule+"</div>";
+    if(!correct && corr.why) html += "<div style='margin-top:6px;'><b style='display:inline;'>Pourquoi :</b> "+corr.why+"</div>";
+    if(corr.example) html += "<div style='margin-top:6px;'><b style='display:inline;'>Exemple :</b> "+corr.example+"</div>";
+    if(extraHint) html += "<div style='margin-top:6px;'>"+extraHint+"</div>";
+    html += "<div class='rowbtns' style='margin-top:14px;'><button class='btn teal' id='nextBtn'>"+(idx+1<sessionExercises.length? "Suivant →":"Terminer")+"</button></div>";
+    html += "<button class='flaglink' id='flagBtn'>🚩 Signaler cette question</button>";
+    html += "</div>";
+    zone.innerHTML = html;
+    document.getElementById("nextBtn").addEventListener("click", ()=>{
+      idx++;
+      if(idx>=sessionExercises.length){ endSession(); } else { renderSessionUI(); }
+    });
+    document.getElementById("flagBtn").addEventListener("click", ()=> openFlagPanel(ex));
+    save(); refreshHeader();
+  }
+
+  function endSession(){
+    const total = sessionExercises.length;
+    const pct = Math.round(sessionCorrect/total*100);
+    if(meta.type==="notion"){
+      const p = getProgress(meta.notionId);
+      p[meta.level].attempts += total;
+      p[meta.level].correct += sessionCorrect;
+      if(pct>=70) p[meta.level].validated = true;
+    } else if(meta.type==="review"){
+      state._reviewDone = (state._reviewDone||0)+1;
+    } else if(meta.type==="victoire"){
+      state._victoires = (state._victoires||0)+1;
+    }
+    bumpStreak();
+    const newBadges = checkBadges();
+    save();
+    const c = document.getElementById("tabContent");
+    let msg = "";
+    if(meta.type==="notion" && pct<70) msg = "<p style='color:var(--ink-soft);'>Ce niveau n'est pas encore validé (il faut 70%). Retente quand tu veux, sans pression 💛</p>";
+    if(meta.type==="notion" && pct>=70) msg = "<p style='color:var(--teal); font-weight:800;'>Niveau validé ✓ — le niveau suivant est débloqué !</p>";
+    c.innerHTML = "<div class='session' style='text-align:center;'>"+
+      "<h2>"+(meta.type==="victoire" ? "🌤️ Petite victoire !" : (pct>=70? "🎉 Bien joué !" : "💪 Bon effort !"))+"</h2>"+
+      "<p style='color:var(--ink-soft);'>Tu as eu "+sessionCorrect+"/"+total+" bonnes réponses ("+pct+"%).</p>"+
+      msg+
+      (newBadges.length? "<div class='badgegrid'>"+newBadges.map(b=>"<div class='badge'>"+b.emoji+"<span>"+b.name+"</span></div>").join("")+"</div>" : "")+
+      "<div class='rowbtns' style='justify-content:center; margin-top:18px;'>"+
+        "<button class='btn amber' id='backHome'>Retour au parcours</button>"+
+      "</div>"+
+    "</div>";
+    document.getElementById("backHome").addEventListener("click", ()=>{ currentTab = meta.type==="review"?"erreurs":"parcours"; renderApp(); });
+    refreshHeader();
+  }
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp; }
+  return arr;
+}
+
+function startVictoire(){
+  let pool = [];
+  NOTIONS.forEach(n=>{
+    if(!notionUnlocked(n)) return;
+    pool = pool.concat(n.levels[1]);
+  });
+  pool = shuffle(pool).slice(0,3);
+  if(!pool.length){ toast("Commence d'abord une notion pour débloquer ce mode."); return; }
+  startSession(pool, {type:"victoire"});
+}
+
+/* ---------- signaler une question ---------- */
+function openFlagPanel(ex){
+  const reasons = ["Ambiguë","Incorrecte","Trop facile","Trop difficile","Données incohérentes","Correction insuffisante","Problème technique"];
+  overlayRoot.innerHTML = "<div class='overlay'><div class='modal'>"+
+    "<button class='close' id='closeFlag'>✕</button>"+
+    "<h2>🚩 Signaler cette question</h2>"+
+    "<p style='color:var(--ink-soft); font-size:0.87rem;'><b>Question :</b> "+ex.prompt+"</p>"+
+    "<label class='small'>Motif</label>"+
+    "<select id='flagReason' style='width:100%; padding:10px; border:2px solid var(--line); border-radius:10px;'>"+
+      reasons.map(r=>"<option value='"+r+"'>"+r+"</option>").join("")+
+    "</select>"+
+    "<label class='small'>Commentaire (optionnel)</label>"+
+    "<textarea class='fillbox' id='flagComment' rows='2' placeholder='Précise si besoin...'></textarea>"+
+    "<div class='rowbtns' style='margin-top:12px;'>"+
+      "<button class='btn coral small' id='sendFlag'>Envoyer le signalement</button>"+
+    "</div>"+
+  "</div></div>";
+  document.getElementById("closeFlag").addEventListener("click", closeOverlay);
+  document.getElementById("sendFlag").addEventListener("click", ()=>{
+    state.flaggedQuestions.push({
+      exId:ex._id, notion:ex._notion, level:ex._level, prompt:ex.prompt,
+      reason:document.getElementById("flagReason").value,
+      comment:document.getElementById("flagComment").value.trim(), ts:Date.now()
+    });
+    save(); closeOverlay(); toast("Signalement envoyé, merci !");
+  });
+}
+
+/* ---------- automatismes tab ---------- */
+function renderAutomatismesTab(c){
+  c.innerHTML = "<div class='grid'>" + AUTOMATISMES.map(a=>{
+    const st = state.automatismesStats[a.id];
+    return "<div class='card'>"+
+      "<div class='tag'>Calcul mental</div>"+
+      "<h3>"+a.label+"</h3>"+
+      "<p>"+(st? ("Meilleur score : "+st.best+"/8") : "Pas encore essayé")+"</p>"+
+      "<button class='btn amber small' data-auto='"+a.id+"'>Faire 8 questions</button>"+
+    "</div>";
+  }).join("") + "</div>";
+  c.querySelectorAll("[data-auto]").forEach(btn=>{
+    btn.addEventListener("click", ()=> startAutomatisme(AUTOMATISMES.find(a=>a.id===btn.dataset.auto)));
+  });
+}
+function startAutomatisme(cat){
+  let idx = 0, correctCount = 0;
+  const total = 8;
+  render();
+  function render(){
+    const c = document.getElementById("tabContent");
+    const q = cat.generate();
+    c.innerHTML = "<div class='session'>"+
+      "<div class='progresstop'><div class='track'><span style='width:"+Math.round(idx/total*100)+"%'></span></div><div class='count mono'>"+(idx+1)+"/"+total+"</div></div>"+
+      "<div class='q-prompt'>"+q.q+"</div>"+
+      "<div id='autoBody'></div>"+
+      "<div id='autoFeedback'></div>"+
+      "<div class='rowbtns'><button class='btn ghost small' id='quitAuto'>Quitter</button></div>"+
+    "</div>";
+    document.getElementById("quitAuto").addEventListener("click", renderTab);
+    const body = document.getElementById("autoBody");
+    if(q.choices){
+      body.innerHTML = "<div class='choices'>"+q.choices.map(ch=>"<button class='choice' data-c='"+ch+"'>"+ch+"</button>").join("")+"</div>";
+      body.querySelectorAll(".choice").forEach(b=> b.addEventListener("click", ()=>check(b.dataset.c===q.a, b, q)));
+    } else {
+      body.innerHTML = "<input type='text' class='fillbox' id='autoInput' placeholder='Ta réponse...'><div class='rowbtns'><button class='btn amber' id='autoCheck'>Valider</button></div>";
+      document.getElementById("autoCheck").addEventListener("click", ()=>{
+        const val = document.getElementById("autoInput").value.trim().replace(",",".");
+        const correct = parseFloat(val)===parseFloat(q.a.replace(",","."));
+        check(correct, null, q);
+      });
+    }
+  }
+  function check(correct, btn, q){
+    if(correct) correctCount++;
+    state._autoCount = (state._autoCount||0)+1;
+    state.xp += correct?3:1;
+    const newBadges = checkBadges();
+    document.getElementById("autoFeedback").innerHTML = "<div class='feedback "+(correct?'ok':'ko')+"'><b>"+(correct?"✅ Correct !":"➡️ Pas tout à fait.")+"</b>Réponse : "+q.a+
+      (newBadges.length?"<div class='badgegrid'>"+newBadges.map(b=>"<div class='badge'>"+b.emoji+"<span>"+b.name+"</span></div>").join("")+"</div>":"")+
+      "<div class='rowbtns' style='margin-top:10px;'><button class='btn teal small' id='nextAuto'>"+(idx+1<total?"Suivant →":"Terminer")+"</button></div></div>";
+    save(); refreshHeader();
+    document.getElementById("nextAuto").addEventListener("click", ()=>{
+      idx++;
+      if(idx>=total){
+        if(!state.automatismesStats[cat.id] || state.automatismesStats[cat.id].best<correctCount){
+          state.automatismesStats[cat.id] = {best:correctCount};
+        }
+        save();
+        const c = document.getElementById("tabContent");
+        c.innerHTML = "<div class='session' style='text-align:center;'><h2>Résultat : "+correctCount+"/"+total+"</h2><p style='color:var(--ink-soft);'>Bravo pour cet entraînement, la régularité compte plus que la vitesse.</p><div class='rowbtns' style='justify-content:center;'><button class='btn amber' id='backAuto'>Retour</button></div></div>";
+        document.getElementById("backAuto").addEventListener("click", renderTab);
+      } else render();
+    });
+  }
+}
+
+/* ---------- dashboard tab ---------- */
+function renderDashboard(c){
+  const domains = [];
+  NOTIONS.forEach(n=>{ if(domains.indexOf(n.domain)===-1) domains.push(n.domain); });
+  let domainRows = domains.map(d=>{
+    const ns = NOTIONS.filter(n=>n.domain===d);
+    const totalPct = Math.round(ns.reduce((s,n)=>s+notionOverallPct(n),0)/ns.length);
+    return "<tr><td>"+d+"</td><td>"+totalPct+"%</td></tr>";
+  }).join("");
+  const fragiles = NOTIONS.filter(n=>{ const s=notionStatus(n); return s.cls==="fragile"||s.cls==="revoir"; });
+  const maitrisees = NOTIONS.filter(n=> notionOverallPct(n)===100);
+  const errCounts = {};
+  state.errorLog.forEach(e=>{ errCounts[e.errorType]=(errCounts[e.errorType]||0)+1; });
+  const topErrors = Object.entries(errCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const nextNotion = NOTIONS.find(n=> notionUnlocked(n) && notionOverallPct(n)<100);
+
+  c.innerHTML = "<div class='card' style='margin-bottom:14px;'>"+
+    "<h3>📊 Progression par domaine</h3>"+
+    "<table class='datatable'><thead><tr><th>Domaine</th><th>Progression</th></tr></thead><tbody>"+domainRows+"</tbody></table>"+
+  "</div>"+
+  "<div class='grid' style='margin-bottom:14px;'>"+
+    "<div class='card'><h3>🌱 Notions fragiles</h3><p>"+(fragiles.length? fragiles.map(n=>n.name).join(", ") : "Aucune pour l'instant.")+"</p></div>"+
+    "<div class='card'><h3>🏆 Notions maîtrisées</h3><p>"+(maitrisees.length? maitrisees.map(n=>n.name).join(", ") : "Aucune pour l'instant.")+"</p></div>"+
+  "</div>"+
+  "<div class='card' style='margin-bottom:14px;'>"+
+    "<h3>🔎 Erreurs fréquentes</h3>"+
+    (topErrors.length? ("<table class='datatable'><thead><tr><th>Type d'erreur</th><th>Occurrences</th></tr></thead><tbody>"+topErrors.map(function(e){return "<tr><td>"+e[0]+"</td><td>"+e[1]+"</td></tr>";}).join("")+"</tbody></table>") : "<p>Aucune erreur enregistrée pour l'instant.</p>")+
+  "</div>"+
+  "<div class='card'>"+
+    "<h3>👉 Recommandation pour la prochaine séance</h3>"+
+    "<p>"+(nextNotion? ("Continuer sur : <b>"+nextNotion.emoji+" "+nextNotion.name+"</b> ("+nextNotion.domain+")") : "Toutes les notions débloquées sont en cours de maîtrise, bravo !")+"</p>"+
+  "</div>";
+}
+
+/* ---------- review tab ---------- */
+function renderErreursTab(c){
+  const pool = reviewPool();
+  if(!pool.length){
+    c.innerHTML = "<div class='empty'>Aucune erreur enregistrée pour l'instant — continue comme ça ! 🌟</div>";
+    return;
+  }
+  c.innerHTML = "<div class='card'>"+
+    "<h3>🔁 Revoir mes erreurs</h3>"+
+    "<p>"+pool.length+" exercice(s) à retravailler, choisis parmi tes erreurs récentes.</p>"+
+    "<button class='btn coral' id='startReview'>Démarrer la révision</button>"+
+  "</div>";
+  document.getElementById("startReview").addEventListener("click", ()=> startSession(pool, {type:"review"}));
+}
+
+/* ---------- badges tab ---------- */
+function renderBadgesTab(c){
+  c.innerHTML = "<div class='card'>"+
+    "<h3>🏅 Mes badges</h3>"+
+    "<div class='badgegrid'>"+
+      BADGE_DEFS.map(b=>{
+        const unlocked = state.badges.includes(b.id);
+        return "<div class='badge "+(unlocked?'':'locked')+"'>"+b.emoji+"<span>"+b.name+"</span></div>";
+      }).join("")+
+    "</div>"+
+  "</div>";
+}
+
+/* ============================================================
+   MODE PARENT
+   ============================================================ */
+document.getElementById("parentGear").addEventListener("click", ()=> openParentPanel());
+function openParentPanel(){
+  let rows = "";
+  NOTIONS.forEach(n=>{
+    const p = getProgress(n.id);
+    [1,2,3,4].forEach(l=>{
+      rows += "<tr><td>"+n.name+"</td><td>Niv. "+l+"</td><td>"+p[l].attempts+"</td><td>"+p[l].correct+"</td><td>"+(p[l].validated?"✓":"—")+"</td></tr>";
+    });
+  });
+  let errRows = state.errorLog.slice(-15).reverse().map(e=>{
+    const n = NOTIONS.find(x=>x.id===e.notion);
+    return "<tr><td>"+(n?n.name:e.notion)+"</td><td>Niv. "+e.level+"</td><td>"+e.errorType+"</td><td>"+new Date(e.ts).toLocaleString("fr-FR")+"</td></tr>";
+  }).join("");
+  let flagRows = state.flaggedQuestions.slice(-15).reverse().map(f=>{
+    const n = NOTIONS.find(x=>x.id===f.notion);
+    return "<tr><td>"+(n?n.name:f.notion)+"</td><td>"+f.reason+"</td><td>"+(f.prompt||"").slice(0,50)+(f.comment?" — "+f.comment:"")+"</td></tr>";
+  }).join("");
+
+  overlayRoot.innerHTML = "<div class='overlay'><div class='modal'>"+
+    "<button class='close' id='closeParent'>✕</button>"+
+    "<h2>⚙ Mode parent</h2>"+
+    "<p style='color:var(--ink-soft); font-size:0.85rem;'>Cet espace permet de vérifier, débloquer et suivre la progression de Louise.</p>"+
+    "<label class='small'>Accès rapide</label>"+
+    "<div class='rowbtns'>"+
+      "<button class='btn ghost small' id='toggleUnlock'>"+(state.parentUnlockAll?"Verrouiller à nouveau tout":"Débloquer toutes les notions/niveaux")+"</button>"+
+      "<button class='btn coral small' id='resetProgress'>Réinitialiser toute la progression</button>"+
+    "</div>"+
+    "<label class='small'>Aller directement à un niveau</label>"+
+    "<div class='rowbtns'>"+
+      "<select id='jumpNotion'>"+NOTIONS.map(n=>"<option value='"+n.id+"'>"+n.name+"</option>").join("")+"</select>"+
+      "<select id='jumpLevel'><option value='1'>Niveau 1</option><option value='2'>Niveau 2</option><option value='3'>Niveau 3</option><option value='4'>Niveau 4</option></select>"+
+      "<button class='btn amber small' id='jumpGo'>Ouvrir</button>"+
+    "</div>"+
+    "<label class='small'>Statistiques par notion</label>"+
+    "<div style='max-height:160px; overflow:auto; border:1px solid var(--line); border-radius:10px; padding:4px;'>"+
+      "<table class='datatable'><thead><tr><th>Notion</th><th>Niv.</th><th>Essais</th><th>Réussites</th><th>Validé</th></tr></thead><tbody>"+rows+"</tbody></table>"+
+    "</div>"+
+    "<label class='small'>Dernières erreurs (avec type d'erreur)</label>"+
+    "<div style='max-height:130px; overflow:auto; border:1px solid var(--line); border-radius:10px; padding:4px;'>"+
+      "<table class='datatable'><thead><tr><th>Notion</th><th>Niv.</th><th>Type</th><th>Date</th></tr></thead><tbody>"+(errRows||"<tr><td colspan='4'>Aucune erreur enregistrée.</td></tr>")+"</tbody></table>"+
+    "</div>"+
+    "<label class='small'>Questions signalées par Louise</label>"+
+    "<div style='max-height:130px; overflow:auto; border:1px solid var(--line); border-radius:10px; padding:4px;'>"+
+      "<table class='datatable'><thead><tr><th>Notion</th><th>Motif</th><th>Question / commentaire</th></tr></thead><tbody>"+(flagRows||"<tr><td colspan='3'>Aucun signalement.</td></tr>")+"</tbody></table>"+
+    "</div>"+
+    "<label class='small'>Avant de rendre l'ordinateur à Louise</label>"+
+    "<div class='rowbtns'>"+
+      "<button class='btn ghost small' id='hideGear'>Masquer ce menu (raccourci : Ctrl+Maj+P pour le rouvrir)</button>"+
+    "</div>"+
+  "</div></div>";
+  document.getElementById("closeParent").addEventListener("click", closeOverlay);
+  document.getElementById("toggleUnlock").addEventListener("click", ()=>{ state.parentUnlockAll = !state.parentUnlockAll; save(); openParentPanel(); });
+  document.getElementById("resetProgress").addEventListener("click", ()=>{
+    if(confirm("Réinitialiser toute la progression, les XP et les badges de Louise ?")){
+      const keepHide = state.hideParentGear;
+      state = defaultState(); state.hideParentGear = keepHide;
+      save(); refreshHeader(); closeOverlay(); renderApp();
+    }
+  });
+  document.getElementById("jumpGo").addEventListener("click", ()=>{
+    const n = NOTIONS.find(x=>x.id===document.getElementById("jumpNotion").value);
+    const lvl = parseInt(document.getElementById("jumpLevel").value);
+    closeOverlay();
+    startSession(n.levels[lvl].map(x=>x), {type:"notion", notionId:n.id, level:lvl});
+  });
+  document.getElementById("hideGear").addEventListener("click", ()=>{
+    state.hideParentGear = true; save();
+    document.getElementById("parentGear").style.display = "none";
+    closeOverlay(); toast("Menu masqué. Ctrl+Maj+P pour le rouvrir.");
+  });
+}
+if(state.hideParentGear) document.getElementById("parentGear").style.display = "none";
+document.addEventListener("keydown", (e)=>{
+  if(e.ctrlKey && e.shiftKey && (e.key==="P"||e.key==="p")){
+    state.hideParentGear = false; save();
+    document.getElementById("parentGear").style.display = "inline";
+    openParentPanel();
+  }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderApp();
+</script>
+</body>
+</html>
