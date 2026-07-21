@@ -1,0 +1,190 @@
+========================================================================
+MATH QUEST — Le parcours de maths de Louise
+========================================================================
+
+QU'EST-CE QUE C'EST ?
+------------------------------------------------------------------------
+Math Quest est un site web autonome (une seule page, index.html) conçu
+pour accompagner un élève de 4e — ici Louise, élève avec TDAH — dans la
+révision du programme de mathématiques. L'application propose un
+parcours de 18 notions organisées en 4 niveaux de difficulté croissante,
+des exercices variés (QCM, réponse à compléter, remise en ordre,
+question ouverte), des explications systématiques après chaque réponse,
+et un système de motivation (XP, séries de jours, badges).
+
+Le site a été pensé pour un profil TDAH : sessions courtes, feedback
+immédiat, absence de pénalité culpabilisante (l'erreur rapporte quand
+même un peu d'XP « pour l'effort »), mode « petite victoire » pour les
+jours plus difficiles, et une interface visuelle claire avec peu de
+distractions.
+
+
+AUCUNE INSTALLATION NÉCESSAIRE
+------------------------------------------------------------------------
+Le site est un unique fichier HTML autonome. Deux façons de l'utiliser :
+
+1) OUVERTURE DIRECTE DANS FIREFOX (ou tout autre navigateur)
+   - Double-cliquez sur index.html, ou faites un clic droit > Ouvrir avec
+     > Firefox (ou Chrome, Edge...).
+   - Le site fonctionne alors immédiatement, sans connexion internet
+     requise pour l'usage courant (les polices d'écriture Google Fonts
+     nécessitent une connexion la première fois ; sans connexion, le
+     site utilisera une police de secours et restera pleinement
+     fonctionnel).
+
+2) HÉBERGEMENT SUR GITHUB PAGES (pour y accéder depuis n'importe quel
+   appareil, y compris une tablette ou un téléphone)
+   - Créez un dépôt GitHub (ou utilisez-en un existant).
+   - Déposez le fichier index.html à la racine du dépôt.
+   - Dans les paramètres du dépôt ("Settings"), section "Pages",
+     choisissez la branche principale ("main") et le dossier racine
+     ("/"), puis enregistrez.
+   - GitHub fournit une adresse du type
+     https://votre-compte.github.io/nom-du-depot/
+     Cette adresse peut être ouverte depuis n'importe quel navigateur.
+   - Aucune configuration serveur supplémentaire n'est nécessaire : le
+     site est 100% autonome (HTML/CSS/JavaScript), sans base de données
+     externe.
+
+
+SAUVEGARDE AUTOMATIQUE (localStorage)
+------------------------------------------------------------------------
+Toute la progression de Louise (XP, badges, niveaux validés, historique
+des erreurs, séries de jours, questions signalées) est enregistrée
+automatiquement dans le "localStorage" du navigateur — une mémoire
+propre à CE navigateur, sur CET ordinateur (ou cet appareil).
+
+Points importants à connaître :
+- Il n'y a AUCUN envoi de données vers un serveur externe : tout reste
+  en local, sur l'appareil utilisé.
+- La sauvegarde se fait automatiquement après chaque exercice ; il n'y a
+  rien à cliquer pour "enregistrer".
+- Si Louise change d'ordinateur, de navigateur, ou navigue en mode
+  "navigation privée", elle repartira de zéro sur cet appareil-là : la
+  progression ne se synchronise pas entre appareils.
+- Vider le cache / les données de navigation du navigateur effacera
+  aussi la progression de Louise. À éviter si vous voulez conserver son
+  historique.
+- Si vous hébergez le site sur GitHub Pages, la sauvegarde reste locale
+  à chaque appareil qui s'y connecte (elle n'est pas partagée entre
+  l'ordinateur et le téléphone, par exemple).
+
+
+LES 6 ESPACES DU SITE
+------------------------------------------------------------------------
+
+1. 🗺️ PARCOURS
+   La vue principale : un chemin sinueux avec les 18 notions du
+   programme, chacune associée à un emoji, un domaine, une barre de
+   progression et un statut (Découverte, Fragile, En cours, Presque
+   maîtrisé, Maîtrisé, ou À revoir). Une notion verrouillée (🔒) doit
+   attendre que ses prérequis soient validés au niveau 1 au moins. En
+   cliquant sur une notion débloquée, une fiche s'ouvre avec l'objectif,
+   la méthode, un exemple résolu, les erreurs fréquentes, une astuce de
+   vérification, et les 4 niveaux d'exercices à choisir.
+
+2. ⚡ AUTOMATISMES
+   Des séries de 8 questions de calcul mental (tables de multiplication,
+   doubles/moitiés, multiplication/division par 10-100-1000, fractions
+   usuelles, pourcentages usuels, carrés, signes des produits). Idéal
+   pour des sessions très courtes de renforcement, indépendamment du
+   parcours principal.
+
+3. 📊 TABLEAU DE BORD
+   Une vue de synthèse : progression par grand domaine du programme,
+   notions fragiles à retravailler, notions maîtrisées, types d'erreurs
+   les plus fréquentes, et une recommandation pour la prochaine séance.
+
+4. 🔁 REVOIR MES ERREURS
+   Une session de révision automatiquement composée à partir des
+   dernières erreurs de Louise (jusqu'à 8 exercices, sans répétition).
+   Vide tant qu'aucune erreur n'a encore été enregistrée.
+
+5. 🏅 BADGES
+   Une collection de 11 badges à débloquer (premier pas, paliers d'XP,
+   série de 3 jours, première notion maîtrisée, exploration de toutes
+   les notions, première session de révision, 40 automatismes réalisés,
+   première "petite victoire", programme complet à 100%).
+
+6. 🌤️ MODE « PETITE VICTOIRE »
+   Accessible directement depuis l'écran d'accueil : une mini-session de
+   3 exercices faciles (niveau 1) piochés parmi les notions débloquées.
+   Pensé pour les jours où une session complète serait décourageante —
+   l'objectif est de repartir avec une réussite rapide et sans pression.
+
+
+LE MODE PARENT
+------------------------------------------------------------------------
+Un bouton "⚙ options" se trouve tout en bas de la page. Il ouvre un
+panneau réservé à l'adulte accompagnant, permettant de :
+- Débloquer temporairement toutes les notions et tous les niveaux (utile
+  pour explorer le contenu ou pour un usage plus libre).
+- Réinitialiser entièrement la progression de Louise (XP, badges,
+  historique) — une confirmation est demandée avant toute suppression.
+- Accéder directement à un niveau précis d'une notion donnée, sans
+  passer par le parcours.
+- Consulter le détail des statistiques par notion et par niveau
+  (tentatives, réussites, validation).
+- Consulter les dernières erreurs enregistrées, avec leur type
+  (utile pour repérer un schéma d'erreur récurrent).
+- Consulter les questions que Louise a elle-même signalées comme
+  ambiguës, incorrectes, trop faciles/difficiles, etc.
+
+MASQUER / RÉAFFICHER LE MENU PARENT
+Avant de rendre l'ordinateur à Louise, un bouton dans le panneau permet
+de masquer le bouton "⚙ options" de la page. Pour le faire réapparaître,
+utilisez le raccourci clavier :
+
+        Ctrl + Maj + P
+
+Ce raccourci rouvre directement le panneau parent, où qu'on se trouve
+dans le site.
+
+
+REPÈRE SUR LE PROGRAMME OFFICIEL DE MATHÉMATIQUES (CLASSE DE 4e)
+------------------------------------------------------------------------
+Les notions couvertes par Math Quest correspondent au programme de
+mathématiques actuellement en vigueur pour la classe de 4e, à savoir le
+programme du cycle 4 issu du Bulletin officiel du 30 juillet 2020 (avec
+les attendus de fin de 4e publiés au BO n°22 du 29 mai 2019).
+
+À noter pour information : un NOUVEAU programme de mathématiques du
+cycle 4 a été publié au Bulletin officiel du 5 mars 2026 (arrêté du
+18 février 2026, BO n°10). Sa mise en application est toutefois
+progressive et étalée dans le temps :
+   - classe de 5e   : à partir de la rentrée 2026-2027
+   - classe de 4e   : à partir de la rentrée 2027-2028
+   - classe de 3e   : à partir de la rentrée 2028-2029
+
+Autrement dit, pour l'année scolaire en cours, la classe de 4e continue
+de suivre l'ANCIEN programme (celui de 2020), et ce jusqu'à la rentrée
+2027. Le contenu de Math Quest reste donc pleinement aligné sur le
+programme actuellement applicable en 4e. Il faudra prévoir une révision
+du contenu à l'approche de la rentrée 2027-2028, lorsque le nouveau
+programme entrera en vigueur pour cette classe.
+Sources : Bulletin officiel de l'Éducation nationale, arrêté du
+18 février 2026 (BO n°10 du 5 mars 2026) ; Eduscol, pages académiques
+de mathématiques (mars-avril 2026).
+
+
+UN MOT SUR LES AUTOMATISMES DE CALCUL MENTAL
+------------------------------------------------------------------------
+Les questions de calcul mental (espace "⚡ Automatismes") sont générées
+aléatoirement à chaque session à partir de formules simples et
+contrôlées (tables de multiplication, doubles/moitiés, multiplications
+et divisions par 10/100/1000, fractions et pourcentages usuels, carrés
+de nombres entiers, signe d'un produit de deux nombres relatifs). Ces
+formules ont été conçues pour toujours produire un résultat exact,
+unique et non ambigu (pas d'arrondi, pas de double réponse possible),
+afin que la correction automatique soit fiable à 100%.
+
+
+BESOIN D'AIDE OU UNE QUESTION SEMBLE INCORRECTE ?
+------------------------------------------------------------------------
+Pendant un exercice, un lien "🚩 Signaler cette question" est disponible
+juste après avoir répondu. Il permet à Louise de signaler elle-même une
+question ambiguë, incorrecte, trop facile/difficile, ou tout autre
+problème. Ces signalements sont consultables dans le mode parent, pour
+permettre un ajustement ultérieur du contenu si besoin.
+
+Bonne route dans ce parcours de maths, Louise ! 🌟
